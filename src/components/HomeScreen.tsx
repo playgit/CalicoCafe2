@@ -174,7 +174,7 @@ export default function HomeScreen({ onPlay, onAbout, onBack, onShop, onRecipeBo
 
       {/* Main content */}
       <div className="relative flex items-center justify-center min-h-screen">
-        <div className={`max-w-md w-full ${themeClasses.card} rounded-xl shadow-lg p-8 m-4 relative`}>
+        <div className={`max-w-lg w-full ${themeClasses.card} rounded-xl shadow-lg p-10 m-4 relative`}>
 
           {/* Cat ears — pointed triangles */}
           <div className="absolute -top-5 left-1/2 transform -translate-x-1/2 flex gap-14">

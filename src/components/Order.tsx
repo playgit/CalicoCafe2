@@ -10,7 +10,7 @@ interface OrderProps {
 }
 
 function TimerBadge({ timeLeft }: { timeLeft: number }) {
-  const isUrgent = timeLeft <= 10;
+  const isUrgent = timeLeft <= 15;
   return (
     <div className={`flex items-center gap-1 text-sm font-semibold ${isUrgent ? 'text-red-600' : 'text-gray-600'}`}>
       <Timer className="w-4 h-4" />
@@ -26,7 +26,7 @@ export default function Order({ order, onComplete, onTimeout }: OrderProps) {
     }
   }, [order.timeLeft, onTimeout]);
 
-  const isUrgent = order.timeLeft <= 10 && order.timeLeft > 0;
+  const isUrgent = order.timeLeft <= 15 && order.timeLeft > 0;
   const urgentClass = isUrgent ? 'border-red-400 animate-pulse' : '';
 
   // Special rendering for Neko
