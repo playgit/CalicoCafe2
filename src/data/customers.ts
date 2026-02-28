@@ -87,11 +87,11 @@ export const CAT_CUSTOMERS: CatCustomer[] = [
   },
   {
     id: 'neko',
-    name: 'Neko',
+    name: 'Neko-Chan',
     image: 'https://images.unsplash.com/photo-1618826411640-d6df44dd3f7a?auto=format&fit=crop&w=92&h=92',
     personality: 'Love Lover',
     color: 'bg-pink-50',
     isSpecial: true,
-    description: '💝 Only accepts pink, white, or red ingredients! Loves sweet and delicate flavors!'
+    description: '💝 This meowing K-pop idol only accepts pink, white, or red ingredients! Loves sweet and delicate flavors!'
   }
 ];
