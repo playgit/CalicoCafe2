@@ -1,64 +1,143 @@
-import React from 'react';
-import { Cat, Play, Info, ArrowLeft, Trophy, Coffee, IceCream, Crown, Star, Clock, Heart, ShoppingBag, Coins } from 'lucide-react';
+import React, { useState } from 'react';
+import { Cat, Play, Info, ArrowLeft, Trophy, Coffee, IceCream, Crown, Star, Clock, Heart, ShoppingBag, Coins, FlaskConical, Zap } from 'lucide-react';
+import { GameMode } from '../types/game';
+
+interface ThemeClasses {
+  bg: string;
+  header: string;
+  card: string;
+  text: string;
+  subtext: string;
+}
 
 interface HomeScreenProps {
-  onPlay: () => void;
+  onPlay: (mode: GameMode) => void;
   onAbout: () => void;
   onBack: () => void;
   onShop: () => void;
+  onRecipeBook: () => void;
+  onCreativeMode: () => void;
   showAbout: boolean;
   highScore: number;
   coins: number;
+  activeTheme: string;
+  themeClasses: ThemeClasses;
 }
 
-export default function HomeScreen({ onPlay, onAbout, onBack, onShop, showAbout, highScore, coins }: HomeScreenProps) {
+export default function HomeScreen({ onPlay, onAbout, onBack, onShop, onRecipeBook, onCreativeMode, showAbout, highScore, coins, activeTheme, themeClasses }: HomeScreenProps) {
+  const [showModes, setShowModes] = useState(false);
+  // Derive accent colors for buttons based on active theme
+  const accentBtn = activeTheme === 'theme-night'
+    ? 'bg-indigo-600 hover:bg-indigo-700'
+    : activeTheme === 'theme-sakura'
+      ? 'bg-rose-400 hover:bg-rose-500'
+      : activeTheme === 'theme-american'
+        ? 'bg-blue-600 hover:bg-blue-700'
+        : 'bg-orange-600 hover:bg-orange-700';
+
+  const accentText = activeTheme === 'theme-night'
+    ? 'text-indigo-400'
+    : activeTheme === 'theme-sakura'
+      ? 'text-rose-500'
+      : activeTheme === 'theme-american'
+        ? 'text-blue-600'
+        : 'text-orange-600';
+
+  const iconColor = activeTheme === 'theme-night'
+    ? 'text-indigo-400'
+    : activeTheme === 'theme-sakura'
+      ? 'text-rose-400'
+      : activeTheme === 'theme-american'
+        ? 'text-blue-500'
+        : 'text-orange-600';
+
+  const bgIcon = activeTheme === 'theme-night'
+    ? 'text-indigo-800'
+    : activeTheme === 'theme-sakura'
+      ? 'text-rose-200'
+      : activeTheme === 'theme-american'
+        ? 'text-blue-200'
+        : 'text-orange-200';
+
+  const earColor = activeTheme === 'theme-night' ? '#4338ca' : activeTheme === 'theme-sakura' ? '#fb7185' : activeTheme === 'theme-american' ? '#2563eb' : '#ea580c';
+
   if (showAbout) {
     return (
-      <div className="min-h-screen bg-amber-50 flex items-center justify-center p-4">
-        <div className="max-w-2xl w-full bg-white rounded-xl shadow-lg p-8">
+      <div className={`min-h-screen ${themeClasses.bg} flex items-center justify-center p-4`}>
+        <div className={`max-w-2xl w-full ${themeClasses.card} rounded-xl shadow-lg p-8`}>
           <button
             onClick={onBack}
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition mb-6"
+            className={`flex items-center gap-2 ${accentText} hover:opacity-80 transition mb-6 font-medium`}
           >
             <ArrowLeft className="w-5 h-5" />
             Back
           </button>
-          
-          <h1 className="text-3xl font-bold text-center mb-6">About Calico Café</h1>
-          
-          <div className="space-y-4 text-gray-700">
-            <p>
+
+          <div className="flex items-center justify-center gap-3 mb-6">
+            <Cat className={`w-8 h-8 ${iconColor}`} />
+            <h1 className={`text-3xl font-bold ${accentText}`}>About Calico Café</h1>
+            <Cat className={`w-8 h-8 ${iconColor}`} />
+          </div>
+
+          <div className={`space-y-5 ${themeClasses.text}`}>
+            <p className={`${activeTheme === 'theme-night' ? 'bg-indigo-900 border-indigo-700' : activeTheme === 'theme-sakura' ? 'bg-rose-50 border-rose-100' : activeTheme === 'theme-american' ? 'bg-blue-50 border-blue-100' : 'bg-orange-50 border-orange-100'} rounded-lg p-3 text-sm border`}>
               Welcome to Calico Café, where you'll serve a delightful array of dishes and drinks to our charming cat customers!
             </p>
-            
-            <h2 className="text-xl font-semibold mt-4">How to Play</h2>
-            <ul className="list-disc pl-5 space-y-2">
-              <li>Take orders from various cat customers, each with unique preferences</li>
-              <li>Combine ingredients in the kitchen to create the perfect dishes</li>
-              <li>Complete orders before they time out</li>
-              <li>Watch out for VIP customers who offer double points!</li>
-              <li>Special customers like Inspector Pawsworth and Emperor Meowximilian have unique requirements</li>
-              <li>Earn coins based on your score to unlock special items in the shop!</li>
-            </ul>
-            
-            <h2 className="text-xl font-semibold mt-4">Special Customers</h2>
-            <ul className="list-disc pl-5 space-y-2">
-              <li><strong>Inspector Pawsworth:</strong> Only accepts drinks and desserts</li>
-              <li><strong>Emperor Meowximilian:</strong> Only accepts the most luxurious golden drinks</li>
-              <li><strong>Duchess:</strong> A VIP customer who offers double points for regular special dishes</li>
-              <li><strong>Neko:</strong> Loves anything pink, white, or red!</li>
-            </ul>
-            
-            <h2 className="text-xl font-semibold mt-4">Earning Coins</h2>
-            <ul className="list-disc pl-5 space-y-2">
-              <li>Score 2000+ points: 4 coins</li>
-              <li>Score 1500-1999 points: 3 coins</li>
-              <li>Score 1000-1499 points: 2 coins</li>
-              <li>Score below 1000 points: 1 coin</li>
-            </ul>
-            
-            <p className="mt-4">
-              You have 3 minutes to serve as many customers as possible and achieve the highest score!
+
+            <div>
+              <h2 className={`text-lg font-bold ${accentText} flex items-center gap-2 mb-2`}>
+                🍳 How to Play
+              </h2>
+              <ul className="list-disc pl-5 space-y-1.5 text-sm">
+                <li>Take orders from cat customers — each order shows the required ingredients</li>
+                <li>Select ingredients from the Kitchen and press <strong>Cook!</strong> to serve</li>
+                <li>Complete orders before the order timer runs out</li>
+                <li>Click an ingredient in the Cooking Station to remove it</li>
+                <li>VIP customers offer double points but have stricter timers!</li>
+                <li>Earn coins based on your final score to unlock shop items</li>
+              </ul>
+            </div>
+
+            <div>
+              <h2 className={`text-lg font-bold ${accentText} flex items-center gap-2 mb-2`}>
+                ⭐ Special Customers
+              </h2>
+              <ul className="space-y-2 text-sm">
+                <li className="flex gap-2"><span>🧐</span><div><strong>Inspector Pawsworth:</strong> Only accepts drinks and desserts (any valid combination)</div></li>
+                <li className="flex gap-2"><span>👑</span><div><strong>Emperor Meowximilian:</strong> Only accepts 5-ingredient golden elixirs (must include ✨ Gold Leaf)</div></li>
+                <li className="flex gap-2"><span>💝</span><div><strong>Neko:</strong> Accepts any 2–4 pink/white/red ingredients for 150 pts</div></li>
+                <li className="flex gap-2"><span>👑</span><div><strong>Duchess:</strong> VIP — double points for any valid recipe, tighter timer</div></li>
+              </ul>
+            </div>
+
+            <div>
+              <h2 className={`text-lg font-bold ${accentText} flex items-center gap-2 mb-2`}>
+                🌸 Seasonal Themes
+              </h2>
+              <p className="text-sm">Unlock <strong>Sakura</strong>, <strong>Night</strong>, or <strong>American Diner</strong> themes in the Shop. When active, only that theme's exclusive recipes appear in orders!</p>
+            </div>
+
+            <div>
+              <h2 className={`text-lg font-bold ${accentText} flex items-center gap-2 mb-2`}>
+                🔥 Combo Bonus
+              </h2>
+              <p className="text-sm">Complete 3 or more orders in a row without a mistake to earn a <strong>10% point bonus</strong> per order!</p>
+            </div>
+
+            <div>
+              <h2 className={`text-lg font-bold ${accentText} flex items-center gap-2 mb-2`}>
+                🪙 Earning Coins
+              </h2>
+              <ul className="list-disc pl-5 space-y-1 text-sm">
+                <li>Score 2000+ points: 4 coins</li>
+                <li>Score 1500–1999 points: 3 coins</li>
+                <li>Score 1000–1499 points: 2 coins</li>
+                <li>Score below 1000 points: 1 coin</li>
+              </ul>
+            </div>
+
+            <p className={`text-sm ${themeClasses.subtext} text-center pt-2`}>
+              You have 3 minutes — serve as many customers as possible!
             </p>
           </div>
         </div>
@@ -67,134 +146,185 @@ export default function HomeScreen({ onPlay, onAbout, onBack, onShop, showAbout,
   }
 
   return (
-    <div className="min-h-screen bg-amber-50 relative overflow-hidden">
-      {/* Animated floating elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-10 left-10 text-orange-200 transform -rotate-12 animate-bounce">
-          <Cat className="w-32 h-32 opacity-20" />
+    <div className={`min-h-screen ${themeClasses.bg} relative overflow-hidden`}>
+      {/* Animated background icons */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className={`absolute top-10 left-10 ${bgIcon} transform -rotate-12 animate-bounce`}>
+          <Cat className="w-32 h-32 opacity-30" />
         </div>
-        <div className="absolute bottom-10 right-10 text-orange-200 transform rotate-12 animate-pulse">
-          <Coffee className="w-32 h-32 opacity-20" />
+        <div className={`absolute bottom-10 right-10 ${bgIcon} transform rotate-12 animate-pulse`}>
+          <Coffee className="w-32 h-32 opacity-30" />
         </div>
-        <div className="absolute top-1/4 right-1/4 text-orange-200 transform rotate-45 animate-bounce">
-          <IceCream className="w-24 h-24 opacity-20" />
+        <div className={`absolute top-1/4 right-1/4 ${bgIcon} transform rotate-45 animate-bounce`}>
+          <IceCream className="w-24 h-24 opacity-30" />
         </div>
-        <div className="absolute bottom-1/4 left-1/4 text-orange-200 transform -rotate-45 animate-pulse">
-          <Crown className="w-24 h-24 opacity-20" />
+        <div className={`absolute bottom-1/4 left-1/4 ${bgIcon} transform -rotate-45 animate-pulse`}>
+          <Crown className="w-24 h-24 opacity-30" />
         </div>
-        <div className="absolute top-1/3 left-1/3 text-orange-200 transform rotate-90 animate-bounce delay-150">
-          <Star className="w-16 h-16 opacity-20" />
+        <div className={`absolute top-1/3 left-1/3 ${bgIcon} transform rotate-90 animate-bounce`} style={{ animationDelay: '150ms' }}>
+          <Star className="w-16 h-16 opacity-30" />
         </div>
-        <div className="absolute bottom-1/3 right-1/3 text-orange-200 transform -rotate-90 animate-pulse delay-150">
-          <Heart className="w-16 h-16 opacity-20" />
+        <div className={`absolute bottom-1/3 right-1/3 ${bgIcon} transform -rotate-90 animate-pulse`} style={{ animationDelay: '150ms' }}>
+          <Heart className="w-16 h-16 opacity-30" />
         </div>
-        <div className="absolute top-2/3 right-1/3 text-orange-200 transform rotate-180 animate-bounce delay-300">
-          <Clock className="w-20 h-20 opacity-20" />
+        <div className={`absolute top-2/3 right-1/3 ${bgIcon} transform rotate-180 animate-bounce`} style={{ animationDelay: '300ms' }}>
+          <Clock className="w-20 h-20 opacity-30" />
         </div>
       </div>
 
       {/* Main content */}
       <div className="relative flex items-center justify-center min-h-screen">
-        <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-8 m-4 relative">
-          {/* Cute cat ears */}
-          <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-            <div className="flex gap-16">
-              <div className="w-8 h-8 bg-orange-600 rounded-full transform -rotate-45"></div>
-              <div className="w-8 h-8 bg-orange-600 rounded-full transform rotate-45"></div>
-            </div>
+        <div className={`max-w-md w-full ${themeClasses.card} rounded-xl shadow-lg p-8 m-4 relative`}>
+
+          {/* Cat ears — pointed triangles */}
+          <div className="absolute -top-5 left-1/2 transform -translate-x-1/2 flex gap-14">
+            <div className="w-0 h-0" style={{
+              borderLeft: '18px solid transparent',
+              borderRight: '18px solid transparent',
+              borderBottom: `36px solid ${earColor}`,
+            }} />
+            <div className="w-0 h-0" style={{
+              borderLeft: '18px solid transparent',
+              borderRight: '18px solid transparent',
+              borderBottom: `36px solid ${earColor}`,
+            }} />
           </div>
 
           {/* Whiskers */}
-          <div className="absolute top-12 left-1/2 transform -translate-x-1/2">
-            <div className="flex gap-32">
-              <div className="space-y-2">
-                <div className="w-8 h-0.5 bg-orange-200 transform rotate-12"></div>
-                <div className="w-8 h-0.5 bg-orange-200"></div>
-                <div className="w-8 h-0.5 bg-orange-200 transform -rotate-12"></div>
+          <div className="absolute top-10 left-1/2 transform -translate-x-1/2 w-full px-4">
+            <div className="flex justify-between">
+              <div className="space-y-1.5">
+                <div className={`w-10 h-px ${activeTheme === 'theme-night' ? 'bg-indigo-400' : activeTheme === 'theme-sakura' ? 'bg-rose-300' : activeTheme === 'theme-american' ? 'bg-blue-300' : 'bg-orange-300'} transform rotate-6`} />
+                <div className={`w-10 h-px ${activeTheme === 'theme-night' ? 'bg-indigo-400' : activeTheme === 'theme-sakura' ? 'bg-rose-300' : activeTheme === 'theme-american' ? 'bg-blue-300' : 'bg-orange-300'}`} />
+                <div className={`w-10 h-px ${activeTheme === 'theme-night' ? 'bg-indigo-400' : activeTheme === 'theme-sakura' ? 'bg-rose-300' : activeTheme === 'theme-american' ? 'bg-blue-300' : 'bg-orange-300'} transform -rotate-6`} />
               </div>
-              <div className="space-y-2">
-                <div className="w-8 h-0.5 bg-orange-200 transform -rotate-12"></div>
-                <div className="w-8 h-0.5 bg-orange-200"></div>
-                <div className="w-8 h-0.5 bg-orange-200 transform rotate-12"></div>
+              <div className="space-y-1.5">
+                <div className={`w-10 h-px ${activeTheme === 'theme-night' ? 'bg-indigo-400' : activeTheme === 'theme-sakura' ? 'bg-rose-300' : activeTheme === 'theme-american' ? 'bg-blue-300' : 'bg-orange-300'} transform -rotate-6`} />
+                <div className={`w-10 h-px ${activeTheme === 'theme-night' ? 'bg-indigo-400' : activeTheme === 'theme-sakura' ? 'bg-rose-300' : activeTheme === 'theme-american' ? 'bg-blue-300' : 'bg-orange-300'}`} />
+                <div className={`w-10 h-px ${activeTheme === 'theme-night' ? 'bg-indigo-400' : activeTheme === 'theme-sakura' ? 'bg-rose-300' : activeTheme === 'theme-american' ? 'bg-blue-300' : 'bg-orange-300'} transform rotate-6`} />
               </div>
             </div>
           </div>
 
-          <div className="flex justify-center mb-6">
+          {/* Logo */}
+          <div className="flex justify-center mb-6 mt-2">
             <div className="relative">
-              <Cat className="w-24 h-24 text-orange-600" />
+              <Cat className={`w-24 h-24 ${iconColor}`} />
               <div className="absolute -right-2 -bottom-2">
-                <Coffee className="w-8 h-8 text-orange-500 animate-bounce" />
+                <Coffee className={`w-8 h-8 ${iconColor} animate-bounce`} />
               </div>
             </div>
           </div>
-          
-          <h1 className="text-4xl font-bold text-center text-gray-800 mb-2">Calico Café</h1>
-          <p className="text-center text-gray-600 mb-8">Serve delightful dishes to charming cats!</p>
-          
+
+          <h1 className={`text-4xl font-bold text-center ${themeClasses.text} mb-2`}>Calico Café</h1>
+          <p className={`text-center ${themeClasses.subtext} mb-8 text-sm`}>Serve delightful dishes to charming cats!</p>
+
+          {/* Stats */}
           <div className="flex gap-4 mb-8">
-            <div className="flex-1 bg-gradient-to-r from-yellow-50 to-amber-50 rounded-lg p-4">
+            <div className={`flex-1 ${activeTheme === 'theme-night' ? 'bg-indigo-900 border-indigo-700' : activeTheme === 'theme-american' ? 'bg-blue-50 border-blue-100' : 'bg-gradient-to-r from-yellow-50 to-amber-50 border-yellow-100'} rounded-lg p-4 border`}>
               <div className="flex items-center justify-center gap-3">
                 <Trophy className="w-6 h-6 text-yellow-500 animate-pulse" />
                 <div>
-                  <div className="text-sm text-gray-600">Best Score</div>
-                  <div className="font-bold text-2xl text-gray-800">{highScore}</div>
+                  <div className={`text-xs ${themeClasses.subtext}`}>Best Score</div>
+                  <div className={`font-bold text-2xl ${themeClasses.text}`}>{highScore}</div>
                 </div>
               </div>
             </div>
-            <div className="flex-1 bg-gradient-to-r from-amber-50 to-yellow-50 rounded-lg p-4">
+            <div className={`flex-1 ${activeTheme === 'theme-night' ? 'bg-indigo-900 border-indigo-700' : activeTheme === 'theme-american' ? 'bg-blue-50 border-blue-100' : 'bg-gradient-to-r from-amber-50 to-yellow-50 border-amber-100'} rounded-lg p-4 border`}>
               <div className="flex items-center justify-center gap-3">
                 <Coins className="w-6 h-6 text-amber-500 animate-pulse" />
                 <div>
-                  <div className="text-sm text-gray-600">Coins</div>
-                  <div className="font-bold text-2xl text-gray-800">{coins}</div>
+                  <div className={`text-xs ${themeClasses.subtext}`}>Coins</div>
+                  <div className={`font-bold text-2xl ${themeClasses.text}`}>{coins}</div>
                 </div>
               </div>
             </div>
           </div>
-          
-          <div className="space-y-4">
-            <button
-              onClick={onPlay}
-              className="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white py-4 px-6 rounded-lg hover:from-orange-600 hover:to-orange-700 transition transform hover:scale-105 hover:shadow-xl shadow-lg flex items-center justify-center gap-2 font-bold text-lg group"
-            >
-              <Play className="w-6 h-6 group-hover:animate-bounce" />
-              <span className="group-hover:animate-pulse">Start Cooking!</span>
-            </button>
-            
-            <div className="grid grid-cols-2 gap-4">
+
+          {/* Buttons */}
+          <div className="space-y-3">
+            {!showModes ? (
+              <button
+                onClick={() => setShowModes(true)}
+                className={`w-full ${accentBtn} text-white py-4 px-6 rounded-lg transition transform hover:scale-105 hover:shadow-xl shadow-lg flex items-center justify-center gap-2 font-bold text-lg group`}
+              >
+                <Play className="w-6 h-6 group-hover:animate-bounce" />
+                Start Cooking!
+              </button>
+            ) : (
+              <div className="space-y-2">
+                <button
+                  onClick={() => { setShowModes(false); onPlay('classic'); }}
+                  className={`w-full ${accentBtn} text-white py-3 px-6 rounded-lg transition flex items-center justify-center gap-2 font-bold`}
+                >
+                  <Play className="w-5 h-5" />
+                  Classic Mode
+                </button>
+                <button
+                  onClick={() => { setShowModes(false); onPlay('lunch-rush'); }}
+                  className="w-full bg-red-600 hover:bg-red-700 text-white py-3 px-6 rounded-lg transition flex items-center justify-center gap-2 font-bold"
+                >
+                  <Zap className="w-5 h-5" />
+                  Lunch Rush ⚡ Hard
+                </button>
+                <button
+                  onClick={() => { setShowModes(false); onCreativeMode(); }}
+                  className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 px-6 rounded-lg transition flex items-center justify-center gap-2 font-bold"
+                >
+                  <FlaskConical className="w-5 h-5" />
+                  Creative Mode 🎨
+                </button>
+                <button
+                  onClick={() => setShowModes(false)}
+                  className="w-full text-gray-500 hover:text-gray-700 py-1 text-sm transition"
+                >
+                  ← Back
+                </button>
+              </div>
+            )}
+
+            <div className="grid grid-cols-2 gap-3">
               <button
                 onClick={onShop}
-                className="bg-amber-500 text-white py-3 px-6 rounded-lg hover:bg-amber-600 transition flex items-center justify-center gap-2 group"
+                className="bg-amber-500 text-white py-3 px-6 rounded-lg hover:bg-amber-600 transition flex items-center justify-center gap-2 group font-medium"
               >
                 <ShoppingBag className="w-5 h-5 group-hover:rotate-12 transition-transform" />
                 Shop
               </button>
-              
               <button
                 onClick={onAbout}
-                className="bg-gray-600 text-white py-3 px-6 rounded-lg hover:bg-gray-700 transition flex items-center justify-center gap-2 group"
+                className="bg-gray-600 text-white py-3 px-6 rounded-lg hover:bg-gray-700 transition flex items-center justify-center gap-2 group font-medium"
               >
                 <Info className="w-5 h-5 group-hover:rotate-12 transition-transform" />
                 How to Play
               </button>
             </div>
+
+            <button
+              onClick={onRecipeBook}
+              className="w-full bg-purple-500 hover:bg-purple-600 text-white py-3 px-6 rounded-lg transition flex items-center justify-center gap-2 font-medium"
+            >
+              <span className="text-lg">📖</span>
+              Recipe Book
+            </button>
           </div>
 
-          {/* Cute paw prints */}
-          <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2">
-            <div className="flex gap-4">
-              {[...Array(3)].map((_, i) => (
-                <div key={i} className="w-4 h-4 bg-orange-200 rounded-full transform rotate-45 animate-bounce" style={{ animationDelay: `${i * 200}ms` }} />
-              ))}
-            </div>
+          {/* Paw prints */}
+          <div className="absolute -bottom-7 left-1/2 transform -translate-x-1/2 flex gap-4">
+            {[0, 1, 2].map(i => (
+              <div
+                key={i}
+                className={`w-4 h-4 ${activeTheme === 'theme-night' ? 'bg-indigo-400' : activeTheme === 'theme-sakura' ? 'bg-rose-300' : activeTheme === 'theme-american' ? 'bg-blue-300' : 'bg-orange-200'} rounded-full animate-bounce`}
+                style={{ animationDelay: `${i * 200}ms` }}
+              />
+            ))}
           </div>
 
-          {/* Decorative corner elements */}
-          <div className="absolute -top-2 -left-2 w-12 h-12 text-orange-300">
+          {/* Corner decorations */}
+          <div className={`absolute -top-2 -left-2 w-10 h-10 ${iconColor}`}>
             <Star className="w-full h-full animate-spin-slow" />
           </div>
-          <div className="absolute -bottom-2 -right-2 w-12 h-12 text-orange-300">
+          <div className={`absolute -bottom-2 -right-2 w-10 h-10 ${iconColor}`}>
             <Heart className="w-full h-full animate-pulse" />
           </div>
         </div>

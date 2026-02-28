@@ -4,7 +4,7 @@ export const SHOP_ITEMS: ShopItem[] = [
   {
     id: 'theme-sakura',
     name: 'Sakura Theme',
-    description: 'A beautiful cherry blossom theme for your café',
+    description: 'Unlocks 12 cherry blossom recipes and transforms your café with a spring theme!',
     cost: 2,
     type: 'theme',
     icon: 'Palette',
@@ -14,12 +14,22 @@ export const SHOP_ITEMS: ShopItem[] = [
   {
     id: 'theme-night',
     name: 'Night Mode',
-    description: 'A cozy nighttime theme for late-night cooking',
+    description: 'Unlocks 12 cozy night recipes and transforms your café with a moonlit theme!',
     cost: 2,
     type: 'theme',
     icon: 'Moon',
     unlocked: false,
     effect: 'Changes the café appearance to a nighttime theme'
+  },
+  {
+    id: 'theme-american',
+    name: 'American Diner',
+    description: 'Unlocks 12 American classics and transforms your café into a retro diner!',
+    cost: 3,
+    type: 'theme',
+    icon: 'Star',
+    unlocked: false,
+    effect: 'American diner theme with burgers, pizza, and milkshakes'
   },
   {
     id: 'boost-time',

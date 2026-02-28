@@ -2,6 +2,7 @@ export interface Ingredient {
   id: string;
   name: string;
   color: string;
+  emoji: string;
   icon?: string;
 }
 
@@ -12,6 +13,8 @@ export interface Recipe {
   points: number;
   timeLimit: number;
   vipOnly?: boolean;
+  theme?: 'sakura' | 'night' | 'american';
+  category?: string;
 }
 
 export interface CatCustomer {
@@ -21,6 +24,7 @@ export interface CatCustomer {
   personality: string;
   color: string;
   isVIP?: boolean;
+  isSpecial?: boolean;
   description?: string;
 }
 
@@ -42,4 +46,19 @@ export interface ShopItem {
   icon: string;
   unlocked: boolean;
   effect: string;
+}
+
+export interface ScorePopup {
+  id: string;
+  points: number;
+}
+
+export type GameMode = 'classic' | 'lunch-rush';
+
+export interface CustomRecipe {
+  id: string;
+  name: string;
+  ingredients: string[];
+  category: 'regular' | 'american' | 'vip' | 'sakura';
+  savedAt: number;
 }
