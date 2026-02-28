@@ -546,7 +546,7 @@ function App() {
 
       {/* Feedback banner */}
       {feedback && (
-        <div className={`fixed top-20 left-1/2 transform -translate-x-1/2 px-8 py-3 rounded-lg shadow-lg z-40 text-sm font-semibold ${
+        <div className={`fixed top-20 left-1/2 transform -translate-x-1/2 px-8 py-3 rounded-lg shadow-lg z-50 text-sm font-semibold ${
           feedback.isError ? 'bg-red-100 text-red-800 border border-red-200' : 'bg-green-100 text-green-800 border border-green-200'
         }`}>
           {feedback.message}
@@ -558,7 +558,7 @@ function App() {
         <div
           key={popup.id}
           className="fixed pointer-events-none z-50 font-bold text-lg bg-green-500 text-white px-4 py-1.5 rounded-full shadow-lg animate-float-up"
-          style={{ top: '80px', left: '50%' }}
+          style={{ top: '120px', left: '50%' }}
         >
           +{popup.points}
         </div>
@@ -568,9 +568,15 @@ function App() {
       {paused && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-40">
           <div className="bg-white rounded-xl px-14 py-10 shadow-2xl text-center">
-            <p className="text-4xl mb-2">⏸</p>
+            <p className="text-4xl mb-4">⏸</p>
             <p className="text-2xl font-bold text-gray-800 mb-1">Paused</p>
-            <p className="text-gray-500 text-sm">Press Resume to continue</p>
+            <p className="text-gray-500 text-sm mb-6">Take a breather — your cats can wait.</p>
+            <button
+              onClick={() => setPaused(false)}
+              className="bg-orange-600 hover:bg-orange-700 text-white px-8 py-3 rounded-lg font-semibold transition text-lg"
+            >
+              ▶ Resume
+            </button>
           </div>
         </div>
       )}

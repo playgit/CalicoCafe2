@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Utensils, Trash2 } from 'lucide-react';
 import { INGREDIENTS, RECIPES } from '../data/recipes';
 import { Order, GameMode } from '../types/game';
-import { getFeedback } from '../utils/feedback';
 
 interface KitchenProps {
   currentOrders: Order[];
@@ -32,16 +31,15 @@ const NEKO_ALLOWED: string[] = [
 
 export default function Kitchen({ currentOrders, onOrderComplete, onWrongOrder, gameMode }: KitchenProps) {
   const [selectedIngredients, setSelectedIngredients] = useState<string[]>([]);
-  const [feedback, setFeedback] = useState<{ message: string; isSuccess: boolean } | null>(null);
   const [activeTab, setActiveTab] = useState<Tab>('food');
 
   const hasVIPOrder = currentOrders.some(order => order.customer.isVIP);
   const maxIngredients = hasVIPOrder ? 6 : 4;
 
-  const showFeedback = (message: string, isSuccess: boolean) => {
-    setFeedback({ message, isSuccess });
-    setTimeout(() => setFeedback(null), 3000);
-  };
+  // Which tabs contain ingredients needed by any active order
+  const neededIds = new Set(currentOrders.flatMap(o => o.recipe.ingredients));
+  const tabHasNeeded = (tab: Tab) =>
+    INGREDIENT_GROUPS[tab].some(id => neededIds.has(id));
 
   const isDrinkOrDessert = (ingredients: string[]) =>
     RECIPES.some(recipe => {
@@ -70,15 +68,9 @@ export default function Kitchen({ currentOrders, onOrderComplete, onWrongOrder, 
     const inspectorOrder = currentOrders.find(o => o.customer.id === 'inspector');
     if (inspectorOrder) {
       if (isDrinkOrDessert(selectedIngredients)) {
-        const matchingRecipe = RECIPES.find(r =>
-          r.ingredients.length === selectedIngredients.length &&
-          r.ingredients.every(ing => selectedIngredients.includes(ing))
-        );
-        showFeedback(getFeedback(matchingRecipe?.name || 'Special Creation', true).message, true);
         onOrderComplete(inspectorOrder.id, 200);
       } else {
         const penalty = Math.min(50, selectedIngredients.length * 10);
-        showFeedback(getFeedback('The Inspector only accepts drinks and desserts!', false).message, false);
         onWrongOrder(penalty);
       }
       setSelectedIngredients([]);
@@ -94,11 +86,9 @@ export default function Kitchen({ currentOrders, onOrderComplete, onWrongOrder, 
         r.ingredients.includes('gold-leaf')
       );
       if (matchingRecipe) {
-        showFeedback(getFeedback(matchingRecipe.name, true).message, true);
         onOrderComplete(emperorOrder.id, emperorOrder.recipe.points);
       } else {
         const penalty = Math.min(50, selectedIngredients.length * 10);
-        showFeedback(getFeedback("The Emperor's golden recipe wasn't right!", false).message, false);
         onWrongOrder(penalty);
       }
       setSelectedIngredients([]);
@@ -112,15 +102,9 @@ export default function Kitchen({ currentOrders, onOrderComplete, onWrongOrder, 
         selectedIngredients.length <= 4 &&
         selectedIngredients.every(ing => NEKO_ALLOWED.includes(ing));
       if (valid) {
-        const ingredientNames = selectedIngredients
-          .map(id => INGREDIENTS.find(i => i.id === id)?.name)
-          .filter(Boolean)
-          .join(', ');
-        showFeedback(getFeedback(`Love Creation (${ingredientNames})`, true).message, true);
         onOrderComplete(nekoOrder.id, 150);
       } else {
         const penalty = Math.min(50, selectedIngredients.length * 10);
-        showFeedback(getFeedback('Neko only accepts pink/white/red ingredients! (2–4 items)', false).message, false);
         onWrongOrder(penalty);
       }
       setSelectedIngredients([]);
@@ -134,11 +118,9 @@ export default function Kitchen({ currentOrders, onOrderComplete, onWrongOrder, 
     );
 
     if (matchedOrder) {
-      showFeedback(getFeedback(matchedOrder.recipe.name, true).message, true);
       onOrderComplete(matchedOrder.id, matchedOrder.recipe.points);
     } else {
       const penalty = Math.min(50, selectedIngredients.length * 10);
-      showFeedback(getFeedback(selectedIngredients, false).message, false);
       onWrongOrder(penalty);
     }
 
@@ -171,14 +153,6 @@ export default function Kitchen({ currentOrders, onOrderComplete, onWrongOrder, 
         )}
       </div>
 
-      {feedback && (
-        <div className={`mb-4 p-3 rounded-lg text-center text-sm ${
-          feedback.isSuccess ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-        }`}>
-          {feedback.message}
-        </div>
-      )}
-
       <div className="grid grid-cols-2 gap-6 flex-1 min-h-0">
         {/* Ingredient panel */}
         <div>
@@ -188,13 +162,16 @@ export default function Kitchen({ currentOrders, onOrderComplete, onWrongOrder, 
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`flex-1 py-1.5 rounded-lg text-sm font-medium transition ${
+                className={`flex-1 py-1.5 rounded-lg text-sm font-medium transition relative ${
                   activeTab === tab
                     ? 'bg-orange-600 text-white shadow-sm'
                     : 'bg-amber-50 text-amber-700 hover:bg-amber-100'
                 }`}
               >
                 {TAB_LABELS[tab]}
+                {tabHasNeeded(tab) && activeTab !== tab && (
+                  <span className="absolute top-1 right-1 w-2 h-2 bg-orange-400 rounded-full" />
+                )}
               </button>
             ))}
           </div>
@@ -224,7 +201,7 @@ export default function Kitchen({ currentOrders, onOrderComplete, onWrongOrder, 
         <div className="border-2 border-dashed border-orange-200 rounded-xl p-4 flex flex-col">
           <h3 className="font-medium mb-3 text-gray-700">Cooking Station</h3>
 
-          <div className="flex-1 flex flex-wrap gap-2 content-start mb-4 min-h-[200px]">
+          <div className="flex-1 flex flex-wrap gap-2 content-start mb-4 min-h-[120px]">
             {selectedIngredients.map((ingredientId, index) => {
               const ingredient = INGREDIENTS.find(i => i.id === ingredientId);
               return (
@@ -241,7 +218,7 @@ export default function Kitchen({ currentOrders, onOrderComplete, onWrongOrder, 
               );
             })}
             {selectedIngredients.length === 0 && (
-              <p className="text-gray-400 text-sm self-center w-full text-center pt-6">
+              <p className="text-gray-400 text-sm self-center w-full text-center pt-4">
                 ✨ Pick ingredients to start cooking!
               </p>
             )}
@@ -253,7 +230,7 @@ export default function Kitchen({ currentOrders, onOrderComplete, onWrongOrder, 
             className={`w-full py-2.5 rounded-lg font-semibold transition ${
               selectedIngredients.length === 0
                 ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                : 'bg-orange-600 text-white hover:bg-orange-700 shadow-sm hover:shadow-md'
+                : 'bg-orange-600 text-white hover:bg-orange-700 shadow-sm hover:shadow-md ring-2 ring-orange-300'
             }`}
           >
             {selectedIngredients.length === 0 ? 'Add ingredients to cook' : '🍳 Cook!'}
