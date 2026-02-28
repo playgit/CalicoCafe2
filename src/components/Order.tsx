@@ -32,7 +32,7 @@ export default function Order({ order, onComplete, onTimeout }: OrderProps) {
   // Special rendering for Neko
   if (order.customer.id === 'neko') {
     return (
-      <div className={`border rounded-lg p-4 hover:shadow-md transition bg-pink-50 ${urgentClass || 'border-pink-200'}`}>
+      <div className={`border rounded-lg p-4 hover:shadow-md transition bg-pink-50 min-w-[260px] max-w-[300px] flex-shrink-0 ${urgentClass || 'border-pink-200'}`}>
         <div className="flex items-start gap-3">
           <div className="relative">
             <img src={order.customer.image} alt={order.customer.name} className="w-12 h-12 rounded-full object-cover" />
@@ -65,7 +65,7 @@ export default function Order({ order, onComplete, onTimeout }: OrderProps) {
   // Special rendering for Inspector Pawsworth
   if (order.customer.isSpecial && !order.customer.isVIP) {
     return (
-      <div className={`border rounded-lg p-4 hover:shadow-md transition bg-blue-50 ${urgentClass || 'border-blue-200'}`}>
+      <div className={`border rounded-lg p-4 hover:shadow-md transition bg-blue-50 min-w-[260px] max-w-[300px] flex-shrink-0 ${urgentClass || 'border-blue-200'}`}>
         <div className="flex items-start gap-3">
           <div className="relative">
             <img src={order.customer.image} alt={order.customer.name} className="w-12 h-12 rounded-full object-cover" />
@@ -92,7 +92,7 @@ export default function Order({ order, onComplete, onTimeout }: OrderProps) {
   }
 
   return (
-    <div className={`border rounded-lg p-4 shadow-sm hover:shadow-md transition ${
+    <div className={`border rounded-lg p-4 shadow-sm hover:shadow-md transition min-w-[260px] max-w-[300px] flex-shrink-0 ${
       isUrgent
         ? 'border-red-400 bg-red-50 animate-pulse'
         : order.customer.isVIP

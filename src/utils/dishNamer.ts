@@ -10,10 +10,21 @@ function deterministicAdj(ingredients: string[]): string {
 
 // --- Dubious combo detection ---
 
-const DRINK_LIQUIDS  = new Set(['tea', 'cola', 'chamomile', 'tapioca', 'brown-sugar']);
-const HEAVY_PROTEINS = new Set(['fish', 'chicken', 'shrimp', 'patty', 'pepperoni']);
-const SAVORY_FOODS   = new Set(['nori', 'miso', 'sauce', 'bun', 'fries', 'pizza-dough']);
-const FLORALS        = new Set(['lavender', 'chamomile', 'sakura']);
+// Savory ingredients — meats, vegetables, savory condiments
+const SAVORY_INGREDIENTS = new Set([
+  'fish', 'chicken', 'shrimp', 'patty', 'pepperoni',  // meats
+  'nori', 'vegetables',                                 // vegetables
+  'miso', 'sauce',                                      // savory sauces
+]);
+
+// Sweet and drink ingredients — anything from the sweet or drink bucket
+const SWEET_OR_DRINK = new Set([
+  'matcha', 'red-bean', 'honey', 'fruit', 'lychee', 'coconut',
+  'sakura', 'white-chocolate', 'lavender', 'dark-chocolate', 'mint',
+  'tapioca', 'tea', 'brown-sugar', 'cola', 'chamomile',
+]);
+
+const FLORALS = new Set(['lavender', 'chamomile', 'sakura']);
 
 const DUBIOUS_NAMES = [
   "A Questionable Creation",
@@ -36,10 +47,9 @@ const DUBIOUS_NAMES = [
 let dubiousIdx = 0;
 
 function isDubious(ids: string[]): boolean {
-  const hasDrink   = ids.some(id => DRINK_LIQUIDS.has(id));
-  const hasProtein = ids.some(id => HEAVY_PROTEINS.has(id));
-  const hasSavory  = ids.some(id => SAVORY_FOODS.has(id));
-  if (hasDrink && (hasProtein || hasSavory)) return true;
+  const hasSavory       = ids.some(id => SAVORY_INGREDIENTS.has(id));
+  const hasSweetOrDrink = ids.some(id => SWEET_OR_DRINK.has(id));
+  if (hasSavory && hasSweetOrDrink) return true;
   // cheese + fruit + floral → weird
   const set = new Set(ids);
   if (set.has('cheese') && set.has('fruit') && ids.some(id => FLORALS.has(id))) return true;

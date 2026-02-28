@@ -203,19 +203,18 @@ export default function Kitchen({ currentOrders, onOrderComplete, onWrongOrder, 
             Selected: {selectedIngredients.length}/{maxIngredients}
           </p>
 
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-4 gap-3">
             {visibleIngredients.map(ingredient => (
               <button
                 key={ingredient.id}
                 onClick={() => handleIngredientClick(ingredient.id)}
                 disabled={selectedIngredients.length >= maxIngredients}
-                className={`group relative ${ingredient.color} p-3 rounded-lg shadow-sm hover:shadow-md transition flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed text-sm`}
+                className="group flex flex-col items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                <span className="text-base leading-none">{ingredient.emoji}</span>
-                <span className="font-medium">{ingredient.name}</span>
-                <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap z-10 pointer-events-none">
-                  Add {ingredient.name}
+                <div className={`w-14 h-14 rounded-full ${ingredient.color} flex items-center justify-center text-2xl shadow-sm group-hover:shadow-md transition group-hover:scale-105`}>
+                  {ingredient.emoji}
                 </div>
+                <span className="text-xs text-center leading-tight text-gray-700">{ingredient.name}</span>
               </button>
             ))}
           </div>

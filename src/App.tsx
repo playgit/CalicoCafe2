@@ -656,12 +656,12 @@ function App() {
       )}
 
       {/* Main game area */}
-      <main className="container mx-auto p-4 grid grid-cols-1 lg:grid-cols-3 gap-6 pt-6 pb-6 h-[calc(100vh-4.5rem)]">
-        {/* Orders panel */}
-        <div className="lg:col-span-1 bg-white rounded-xl shadow-md p-4 flex flex-col">
-          <div className="flex items-center gap-2 mb-4">
+      <main className="container mx-auto p-4 flex flex-col gap-4 h-[calc(100vh-4.5rem)]">
+        {/* Orders row */}
+        <div className="bg-white rounded-xl shadow-md p-4 flex-shrink-0">
+          <div className="flex items-center gap-2 mb-3">
             <Coffee className="text-orange-600" />
-            <h2 className="text-xl font-semibold">
+            <h2 className="text-lg font-semibold">
               Orders ({orders.length}/{isLunchRush ? 2 : 3})
             </h2>
             {isLunchRush && lunchRushMisses > 0 && (
@@ -670,7 +670,7 @@ function App() {
               </span>
             )}
           </div>
-          <div className="space-y-4">
+          <div className="flex gap-4 overflow-x-auto pb-1">
             {orders.map(order => (
               <Order
                 key={order.id}
@@ -680,13 +680,13 @@ function App() {
               />
             ))}
             {orders.length === 0 && (
-              <p className="text-gray-400 text-center py-6 text-sm">Waiting for customers…</p>
+              <p className="text-gray-400 text-center py-4 text-sm w-full">Waiting for customers…</p>
             )}
           </div>
         </div>
 
         {/* Kitchen */}
-        <div className="lg:col-span-2 flex flex-col">
+        <div className="flex-1 min-h-0 flex flex-col">
           <Kitchen
             currentOrders={orders}
             onOrderComplete={handleOrderComplete}
