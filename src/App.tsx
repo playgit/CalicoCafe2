@@ -26,7 +26,7 @@ function App() {
   const [timeLeft, setTimeLeft] = useState(180);
   const [orders, setOrders] = useState<OrderType[]>([]);
   const [gameOver, setGameOver] = useState(false);
-  const [firstOrderCompleted, setFirstOrderCompleted] = useState(false);
+
   const [feedback, setFeedback] = useState<{ message: string; isError: boolean } | null>(null);
   const [showHome, setShowHome] = useState(true);
   const [showAbout, setShowAbout] = useState(false);
@@ -80,6 +80,8 @@ function App() {
   useEffect(() => { gameModeRef.current = gameMode; }, [gameMode]);
   useEffect(() => { lunchRushMissesRef.current = lunchRushMisses; }, [lunchRushMisses]);
   useEffect(() => { customRecipesRef.current = customRecipes; }, [customRecipes]);
+  const ordersRef = useRef<OrderType[]>([]);
+  useEffect(() => { ordersRef.current = orders; }, [orders]);
 
   useEffect(() => { localStorage.setItem('highScore', highScore.toString()); }, [highScore]);
   useEffect(() => { localStorage.setItem('coins', coins.toString()); }, [coins]);
@@ -104,9 +106,9 @@ function App() {
       if (pausedRef.current || timeLeftRef.current <= 0) return;
       const mode = gameModeRef.current;
       const maxOrders = mode === 'lunch-rush' ? 2 : 3;
-      if (orders.length >= maxOrders) return;
+      if (ordersRef.current.length >= maxOrders) return;
 
-      const busyCustomerIds = orders.map(o => o.customer.id);
+      const busyCustomerIds = ordersRef.current.map(o => o.customer.id);
       const availableCustomers = CAT_CUSTOMERS.filter(c => !busyCustomerIds.includes(c.id));
       if (availableCustomers.length === 0) return;
 
@@ -188,28 +190,32 @@ function App() {
       };
 
       setOrders(prev => [...prev, newOrder]);
+
+      if (newOrder.customer.isVIP) {
+        setFeedback({ message: `👑 ${newOrder.customer.name} has arrived! Double points!`, isError: false });
+        setTimeout(() => setFeedback(null), 3000);
+      }
     };
 
-    if (orders.length === 0) {
-      generateOrder();
-    }
+    // First order immediately on game start/restart
+    generateOrder();
 
-    let orderInterval: ReturnType<typeof setInterval> | null = null;
-    if (firstOrderCompleted) {
-      const mode = gameModeRef.current;
-      const intervalMs = mode === 'lunch-rush'
+    // Self-rescheduling timeout so speed scaling recalculates each cycle
+    let orderTimeout: ReturnType<typeof setTimeout>;
+    const scheduleNext = () => {
+      const elapsed = 180 - timeLeftRef.current;
+      const delay = gameModeRef.current === 'lunch-rush'
         ? 1500
-        : (() => {
-            const elapsed = 180 - timeLeftRef.current;
-            return elapsed > 90 ? 2000 : elapsed > 60 ? 3000 : 4000;
-          })();
-      orderInterval = setInterval(generateOrder, intervalMs);
-    }
-
-    return () => {
-      if (orderInterval) clearInterval(orderInterval);
+        : elapsed > 90 ? 2000 : elapsed > 60 ? 3000 : 4000;
+      orderTimeout = setTimeout(() => {
+        generateOrder();
+        scheduleNext();
+      }, delay);
     };
-  }, [gameOver, firstOrderCompleted, orders]);
+    scheduleNext();
+
+    return () => clearTimeout(orderTimeout);
+  }, [gameOver]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ─── Global timer + per-order countdown ───────────────────────────────────
   useEffect(() => {
@@ -320,13 +326,11 @@ function App() {
     setFeedback({ message: `+${finalPoints} pts!${comboMsg}`, isError: false });
     setTimeout(() => setFeedback(null), 2500);
 
-    if (!firstOrderCompleted) setFirstOrderCompleted(true);
   };
 
   const handleOrderTimeout = (orderId: string) => {
     setOrders(prev => prev.filter(o => o.id !== orderId));
     setComboCount(0);
-    if (!firstOrderCompleted) setFirstOrderCompleted(true);
   };
 
   const handleWrongOrder = (penalty: number) => {
@@ -382,7 +386,7 @@ function App() {
     setTimeLeft(mode === 'lunch-rush' ? 30 : 180 + extraTime);
     setOrders([]);
     setGameOver(false);
-    setFirstOrderCompleted(false);
+
     setFeedback(null);
     setPaused(false);
     setComboCount(0);
@@ -677,14 +681,16 @@ function App() {
             )}
           </div>
           <div className="flex gap-4 overflow-x-auto pb-1">
-            {orders.map(order => (
-              <Order
-                key={order.id}
-                order={order}
-                onComplete={points => handleOrderComplete(order.id, points)}
-                onTimeout={() => handleOrderTimeout(order.id)}
-              />
-            ))}
+            {[...orders]
+              .sort((a, b) => (b.isVIP ? 1 : 0) - (a.isVIP ? 1 : 0))
+              .map(order => (
+                <Order
+                  key={order.id}
+                  order={order}
+                  onComplete={points => handleOrderComplete(order.id, points)}
+                  onTimeout={() => handleOrderTimeout(order.id)}
+                />
+              ))}
             {orders.length === 0 && (
               <p className="text-gray-400 text-center py-4 text-sm w-full">Waiting for customers…</p>
             )}

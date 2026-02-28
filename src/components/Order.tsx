@@ -92,12 +92,12 @@ export default function Order({ order, onComplete, onTimeout }: OrderProps) {
   }
 
   return (
-    <div className={`border rounded-lg p-4 shadow-sm hover:shadow-md transition min-w-[260px] max-w-[300px] flex-shrink-0 ${
+    <div className={`border rounded-lg p-4 hover:shadow-md transition flex-shrink-0 ${
       isUrgent
-        ? 'border-red-400 bg-red-50 animate-pulse'
+        ? 'border-red-400 bg-red-50 animate-pulse shadow-sm min-w-[260px] max-w-[300px]'
         : order.customer.isVIP
-          ? 'border-2 border-yellow-400 bg-gradient-to-r from-yellow-50 to-amber-50'
-          : `border-gray-200 ${order.customer.color}`
+          ? 'border-2 border-yellow-400 bg-gradient-to-r from-yellow-50 to-amber-50 shadow-lg shadow-yellow-200 min-w-[280px] max-w-[320px]'
+          : `border-gray-200 ${order.customer.color} shadow-sm min-w-[260px] max-w-[300px]`
     }`}>
       <div className="flex items-start gap-3">
         <div className="relative">
@@ -139,7 +139,10 @@ export default function Order({ order, onComplete, onTimeout }: OrderProps) {
               })}
             </div>
             {order.customer.isVIP && (
-              <p className="text-xs text-yellow-600 mt-2 font-medium">✨ Double points!</p>
+              <div className="flex items-center gap-3 mt-2">
+                <p className="text-xs text-yellow-600 font-medium">✨ Double points!</p>
+                <p className="text-xs text-orange-500 font-medium">⏱ Strict timer</p>
+              </div>
             )}
           </div>
         </div>
