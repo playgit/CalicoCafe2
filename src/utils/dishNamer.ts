@@ -8,6 +8,58 @@ function deterministicAdj(ingredients: string[]): string {
   return ADJECTIVES[hash % ADJECTIVES.length];
 }
 
+// --- Dubious combo detection ---
+
+const DRINK_LIQUIDS  = new Set(['tea', 'cola', 'chamomile', 'tapioca', 'brown-sugar']);
+const HEAVY_PROTEINS = new Set(['fish', 'chicken', 'shrimp', 'patty', 'pepperoni']);
+const SAVORY_FOODS   = new Set(['nori', 'miso', 'sauce', 'bun', 'fries', 'pizza-dough']);
+const FLORALS        = new Set(['lavender', 'chamomile', 'sakura']);
+
+const DUBIOUS_NAMES = [
+  "A Questionable Creation",
+  "Chef's Regrettable Experiment",
+  "The Lab Accident",
+  "Whiskers' Worst Nightmare",
+  "Don't Ask What's In It",
+  "A Brave Culinary Risk",
+  "Something Went Wrong",
+  "Hmm… That's Unusual",
+  "An Acquired Taste",
+  "The Suspicious Special",
+  "What Did We Make?",
+  "Café's Mystery Plate",
+  "An Unconventional Choice",
+  "The Bold Misadventure",
+  "Even The Chef Is Confused",
+];
+
+let dubiousIdx = 0;
+
+function isDubious(ids: string[]): boolean {
+  const hasDrink   = ids.some(id => DRINK_LIQUIDS.has(id));
+  const hasProtein = ids.some(id => HEAVY_PROTEINS.has(id));
+  const hasSavory  = ids.some(id => SAVORY_FOODS.has(id));
+  if (hasDrink && (hasProtein || hasSavory)) return true;
+  // cheese + fruit + floral → weird
+  const set = new Set(ids);
+  if (set.has('cheese') && set.has('fruit') && ids.some(id => FLORALS.has(id))) return true;
+  return false;
+}
+
+function getDubiousName(usedNames?: Set<string>): string {
+  for (let i = 0; i < DUBIOUS_NAMES.length; i++) {
+    const candidate = DUBIOUS_NAMES[(dubiousIdx + i) % DUBIOUS_NAMES.length];
+    if (!usedNames?.has(candidate)) {
+      dubiousIdx = (dubiousIdx + i + 1) % DUBIOUS_NAMES.length;
+      return candidate;
+    }
+  }
+  // All pool entries used — append #2
+  const name = DUBIOUS_NAMES[dubiousIdx % DUBIOUS_NAMES.length] + ' #2';
+  dubiousIdx = (dubiousIdx + 1) % DUBIOUS_NAMES.length;
+  return name;
+}
+
 // Signature pair table — sorted ingredient IDs joined by '|' → dish name template
 // {adj} is replaced with the deterministic adjective
 const SIGNATURE_PAIRS = new Map<string, string>([
@@ -128,7 +180,7 @@ function pickFallback(bucket: Bucket | 'mixed', ingredients: string[]): string {
   return template.replace('{adj}', deterministicAdj(ingredients));
 }
 
-export function nameDish(ingredientIds: string[]): string {
+export function nameDish(ingredientIds: string[], usedNames?: Set<string>): string {
   if (ingredientIds.length === 0) return 'Empty Plate';
 
   if (ingredientIds.length === 1) {
@@ -144,36 +196,45 @@ export function nameDish(ingredientIds: string[]): string {
   });
   if (exactMatch) return exactMatch.name;
 
-  // 2. Signature pair lookup — iterate all pairs in sorted ingredient order
+  // 2. Dubious combo detection — incompatible ingredient categories
+  if (isDubious(ingredientIds)) return getDubiousName(usedNames);
+
+  // Compute dominant bucket for category-gating of pair lookup
+  const bucketCounts: Partial<Record<Bucket, number>> = {};
+  for (const id of ingredientIds) {
+    const b = INGREDIENT_BUCKETS[id];
+    if (b) bucketCounts[b] = (bucketCounts[b] ?? 0) + 1;
+  }
+  const dominant: Bucket | 'mixed' = Object.keys(bucketCounts).length === 0
+    ? 'mixed'
+    : (Object.entries(bucketCounts) as [Bucket, number][]).sort((a, b) => b[1] - a[1])[0][0];
+
+  // 3. Signature pair lookup — category-gated so cross-category pairs don't mismatch
   const sorted = ingredientIds.slice().sort();
   for (let i = 0; i < sorted.length - 1; i++) {
     for (let j = i + 1; j < sorted.length; j++) {
       const key = buildPairKey(sorted[i], sorted[j]);
       if (SIGNATURE_PAIRS.has(key)) {
+        const bucketA = INGREDIENT_BUCKETS[sorted[i]];
+        const bucketB = INGREDIENT_BUCKETS[sorted[j]];
+        // Skip if neither ingredient in the pair belongs to the dominant category
+        if (dominant !== 'mixed' && bucketA !== dominant && bucketB !== dominant) continue;
+
         const template = SIGNATURE_PAIRS.get(key)!;
         const baseName = template.replace('{adj}', deterministicAdj(ingredientIds));
         const used = new Set([sorted[i], sorted[j]]);
         const extras = ingredientIds
           .filter(id => !used.has(id))
           .map(id => INGREDIENTS.find(i => i.id === id)?.name ?? id);
-        return extras.length > 0 ? `${baseName} with ${extras.join(' & ')}` : baseName;
+        let result = extras.length > 0 ? `${baseName} with ${extras.join(' & ')}` : baseName;
+        if (usedNames?.has(result)) result = result + ' #2';
+        return result;
       }
     }
   }
 
-  // 3. Category-dominant fallback
-  const bucketCounts: Partial<Record<Bucket, number>> = {};
-  for (const id of ingredientIds) {
-    const bucket = INGREDIENT_BUCKETS[id];
-    if (bucket) bucketCounts[bucket] = (bucketCounts[bucket] ?? 0) + 1;
-  }
-
-  if (Object.keys(bucketCounts).length === 0) {
-    return pickFallback('mixed', ingredientIds);
-  }
-
-  const dominant = (Object.entries(bucketCounts) as [Bucket, number][])
-    .sort((a, b) => b[1] - a[1])[0][0];
-
-  return pickFallback(dominant, ingredientIds);
+  // 4. Category-dominant fallback
+  let result = pickFallback(dominant, ingredientIds);
+  if (usedNames?.has(result)) result = result + ' #2';
+  return result;
 }

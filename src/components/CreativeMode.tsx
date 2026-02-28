@@ -53,6 +53,7 @@ export default function CreativeMode({
   const [customSaveName, setCustomSaveName] = useState('');
   const [saveError, setSaveError] = useState<string | null>(null);
   const [savedFlash, setSavedFlash] = useState(false);
+  const [usedNames, setUsedNames] = useState<Set<string>>(new Set());
 
   const accentBtn = activeTheme === 'theme-night'
     ? 'bg-indigo-600 hover:bg-indigo-700'
@@ -70,7 +71,7 @@ export default function CreativeMode({
         ? 'text-blue-600'
         : 'text-orange-600';
 
-  const liveName = selectedIngredients.length > 0 ? nameDish(selectedIngredients) : null;
+  const liveName = selectedIngredients.length > 0 ? nameDish(selectedIngredients, usedNames) : null;
   const visibleIngredients = INGREDIENTS.filter(i => INGREDIENT_GROUPS[activeTab].includes(i.id));
 
   const handleIngredientClick = (id: string) => {
@@ -87,7 +88,7 @@ export default function CreativeMode({
 
   const handleCreate = () => {
     if (selectedIngredients.length === 0) return;
-    const name = nameDish(selectedIngredients);
+    const name = nameDish(selectedIngredients, usedNames);
     const sorted = selectedIngredients.slice().sort();
     const isKnown = RECIPES.some(r =>
       r.ingredients.length === selectedIngredients.length &&
@@ -96,6 +97,7 @@ export default function CreativeMode({
     setCreatedName(name);
     setIsKnownRecipe(isKnown);
     setCustomSaveName(name);
+    setUsedNames(prev => new Set(prev).add(name));
   };
 
   const openSaveModal = () => {

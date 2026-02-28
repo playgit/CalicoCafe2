@@ -379,7 +379,7 @@ function App() {
     const extraTime = unlockedItems.includes('boost-time') ? 30 : 0;
     const multiplier = unlockedItems.includes('boost-points') ? 1.5 : 1;
     setScore(0);
-    setTimeLeft(mode === 'lunch-rush' ? 60 : 180 + extraTime);
+    setTimeLeft(mode === 'lunch-rush' ? 30 : 180 + extraTime);
     setOrders([]);
     setGameOver(false);
     setFirstOrderCompleted(false);
