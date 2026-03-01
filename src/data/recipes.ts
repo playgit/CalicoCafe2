@@ -40,6 +40,23 @@ export const INGREDIENTS: Ingredient[] = [
   { id: 'pizza-dough',     name: 'Pizza Dough',     color: 'bg-amber-100',                       emoji: '🫓' },
   { id: 'pepperoni',       name: 'Pepperoni',       color: 'bg-red-700 text-white',              emoji: '🍖' },
   { id: 'cola',            name: 'Soda',            color: 'bg-stone-600 text-white',            emoji: '🥤' },
+  // Sunset Mocktail Bar ingredients
+  { id: 'passionfruit',    name: 'Passionfruit',    color: 'bg-yellow-300',                      emoji: '💛' },
+  { id: 'mango',           name: 'Mango',           color: 'bg-amber-300',                       emoji: '🥭' },
+  { id: 'grenadine',       name: 'Grenadine',       color: 'bg-red-400 text-white',              emoji: '🍒' },
+  { id: 'pineapple',       name: 'Pineapple',       color: 'bg-yellow-200',                      emoji: '🍍' },
+  { id: 'ginger',          name: 'Ginger',          color: 'bg-amber-200',                       emoji: '🫚' },
+  { id: 'lime',            name: 'Lime',            color: 'bg-lime-300',                        emoji: '🍋' },
+  { id: 'watermelon',      name: 'Watermelon',      color: 'bg-red-300',                         emoji: '🍉' },
+  { id: 'dragon-fruit',    name: 'Dragon Fruit',    color: 'bg-fuchsia-300',                     emoji: '🐉' },
+  { id: 'rose-syrup',      name: 'Rose Syrup',      color: 'bg-rose-300',                        emoji: '🌹' },
+  { id: 'hibiscus',        name: 'Hibiscus',        color: 'bg-pink-400 text-white',             emoji: '🌺' },
+  { id: 'crushed-ice',     name: 'Crushed Ice',     color: 'bg-cyan-100 border border-cyan-200', emoji: '🧊' },
+  { id: 'boba',            name: 'Boba',            color: 'bg-stone-800 text-white',            emoji: '🧋' },
+  { id: 'agave',           name: 'Agave',           color: 'bg-emerald-200',                     emoji: '🌵' },
+  { id: 'butterfly-pea',   name: 'Butterfly Pea',   color: 'bg-violet-400 text-white',           emoji: '🦋' },
+  { id: 'soda-water',      name: 'Soda Water',      color: 'bg-sky-100 border border-sky-200',   emoji: '🫧' },
+  { id: 'espresso',        name: 'Espresso',        color: 'bg-stone-700 text-white',            emoji: '☕' },
 ];
 
 export const RECIPES: Recipe[] = [
@@ -762,5 +779,115 @@ export const RECIPES: Recipe[] = [
     timeLimit: 35,
     theme: 'american',
     category: 'american'
+  },
+
+  // Sunset / Meow-Meow Mocktail Bar Recipes (unlocked with theme-sunset)
+  {
+    id: 'sunset-spritzer',
+    name: 'Sunset Spritzer',
+    ingredients: ['grenadine', 'mango', 'soda-water'],
+    points: 160,
+    timeLimit: 40,
+    theme: 'sunset',
+    category: 'sunset'
+  },
+  {
+    id: 'purrfect-punch',
+    name: 'Purrfect Punch',
+    ingredients: ['passionfruit', 'pineapple', 'watermelon', 'lime'],
+    points: 155,
+    timeLimit: 40,
+    theme: 'sunset',
+    category: 'sunset'
+  },
+  {
+    id: 'catnip-cooler',
+    name: 'Catnip Cooler',
+    ingredients: ['mint', 'ginger', 'agave', 'soda-water'],
+    points: 145,
+    timeLimit: 35,
+    theme: 'sunset',
+    category: 'sunset'
+  },
+  {
+    id: 'twilight-tiki',
+    name: 'Twilight Tiki',
+    ingredients: ['pineapple', 'coconut', 'mango', 'crushed-ice'],
+    points: 160,
+    timeLimit: 40,
+    theme: 'sunset',
+    category: 'sunset'
+  },
+  {
+    id: 'meow-meow-mai-tai',
+    name: 'Meow-Meow Mai Tai',
+    ingredients: ['passionfruit', 'mango', 'grenadine', 'pineapple'],
+    points: 180,
+    timeLimit: 45,
+    theme: 'sunset',
+    category: 'sunset'
+  },
+  {
+    id: 'golden-paw-fizz',
+    name: 'Golden Paw Fizz',
+    ingredients: ['honey', 'ginger', 'lychee', 'soda-water'],
+    points: 140,
+    timeLimit: 35,
+    theme: 'sunset',
+    category: 'sunset'
+  },
+  {
+    id: 'dragon-kiss',
+    name: 'Dragon Kiss',
+    ingredients: ['dragon-fruit', 'rose-syrup', 'lime', 'soda-water'],
+    points: 150,
+    timeLimit: 40,
+    theme: 'sunset',
+    category: 'sunset'
+  },
+  {
+    id: 'blossom-bliss',
+    name: 'Blossom Bliss',
+    ingredients: ['sakura', 'lavender', 'honey', 'boba'],
+    points: 155,
+    timeLimit: 40,
+    theme: 'sunset',
+    category: 'sunset'
+  },
+  {
+    id: 'calico-colada',
+    name: 'Calico Colada',
+    ingredients: ['pineapple', 'coconut', 'fruit', 'crushed-ice'],
+    points: 165,
+    timeLimit: 40,
+    theme: 'sunset',
+    category: 'sunset'
+  },
+  {
+    id: 'hibiscus-whisker-sour',
+    name: 'Hibiscus Whisker Sour',
+    ingredients: ['hibiscus', 'lychee', 'lime', 'grenadine'],
+    points: 135,
+    timeLimit: 35,
+    theme: 'sunset',
+    category: 'sunset'
+  },
+  {
+    id: 'furozen-meowjito',
+    name: 'Fur-ozen Meow-jito',
+    ingredients: ['mint', 'lime', 'crushed-ice', 'agave'],
+    points: 170,
+    timeLimit: 45,
+    theme: 'sunset',
+    category: 'sunset'
+  },
+  {
+    id: 'espresso-purrtini',
+    name: 'Espresso Purr-tini',
+    ingredients: ['espresso', 'honey', 'coconut', 'crushed-ice'],
+    points: 175,
+    timeLimit: 45,
+    theme: 'sunset',
+    category: 'sunset'
   },
 ];

@@ -32,6 +32,16 @@ export const SHOP_ITEMS: ShopItem[] = [
     effect: 'American diner theme with burgers, pizza, and milkshakes'
   },
   {
+    id: 'theme-sunset',
+    name: 'Meow-Meow Mocktail Bar',
+    description: 'Unlocks 12 tropical mocktails and transforms your café into a sunset cocktail bar!',
+    cost: 4,
+    type: 'theme',
+    icon: 'Sunset',
+    unlocked: false,
+    effect: 'Sunset gradient theme with mocktails, tiki vibes, and tropical ingredients'
+  },
+  {
     id: 'boost-time',
     name: 'Time Extension',
     description: 'Start with 30 extra seconds',

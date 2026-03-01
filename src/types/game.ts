@@ -13,7 +13,7 @@ export interface Recipe {
   points: number;
   timeLimit: number;
   vipOnly?: boolean;
-  theme?: 'sakura' | 'night' | 'american';
+  theme?: 'sakura' | 'night' | 'american' | 'sunset';
   category?: string;
 }
 
@@ -35,6 +35,7 @@ export interface Order {
   completed: boolean;
   customer: CatCustomer;
   isVIP?: boolean;
+  createdAt: number;
 }
 
 export interface ShopItem {
@@ -53,7 +54,7 @@ export interface ScorePopup {
   points: number;
 }
 
-export type GameMode = 'classic' | 'lunch-rush';
+export type GameMode = 'classic' | 'lunch-rush' | 'memory' | 'endless' | 'vip-royale';
 
 export interface CustomRecipe {
   id: string;

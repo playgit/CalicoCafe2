@@ -3,7 +3,7 @@ import { ArrowLeft, Trash2 } from 'lucide-react';
 import { RECIPES, INGREDIENTS } from '../data/recipes';
 import { Recipe, CustomRecipe } from '../types/game';
 
-type RecipeTab = 'all' | 'food' | 'dessert' | 'drink' | 'sakura' | 'night' | 'american' | 'vip' | 'custom';
+type RecipeTab = 'all' | 'food' | 'dessert' | 'drink' | 'sakura' | 'night' | 'american' | 'sunset' | 'vip' | 'custom';
 
 interface RecipeBookProps {
   onBack: () => void;
@@ -21,6 +21,7 @@ const TABS: { id: RecipeTab; label: string; lockedTheme?: string }[] = [
   { id: 'sakura',   label: '🌸 Sakura',   lockedTheme: 'theme-sakura' },
   { id: 'night',    label: '🌙 Night',    lockedTheme: 'theme-night' },
   { id: 'american', label: '🍔 American', lockedTheme: 'theme-american' },
+  { id: 'sunset',   label: '🍹 Mocktails', lockedTheme: 'theme-sunset' },
   { id: 'vip',      label: '⭐ VIP' },
   { id: 'custom',   label: '✏️ My Recipes' },
 ];
@@ -31,11 +32,13 @@ export default function RecipeBook({ onBack, unlockedItems, activeTheme, customR
   const sakuraUnlocked   = unlockedItems.includes('theme-sakura');
   const nightUnlocked    = unlockedItems.includes('theme-night');
   const americanUnlocked = unlockedItems.includes('theme-american');
+  const sunsetUnlocked   = unlockedItems.includes('theme-sunset');
 
   const isRecipeLocked = (recipe: Recipe) => {
     if (recipe.theme === 'sakura')   return !sakuraUnlocked;
     if (recipe.theme === 'night')    return !nightUnlocked;
     if (recipe.theme === 'american') return !americanUnlocked;
+    if (recipe.theme === 'sunset')   return !sunsetUnlocked;
     return false;
   };
 
@@ -45,12 +48,12 @@ export default function RecipeBook({ onBack, unlockedItems, activeTheme, customR
   });
 
   // Outer bg/card follow active theme
-  const outerBg  = activeTheme === 'theme-night' ? 'bg-slate-900' : activeTheme === 'theme-sakura' ? 'bg-pink-50' : activeTheme === 'theme-american' ? 'bg-red-50' : 'bg-amber-50';
-  const cardBg   = activeTheme === 'theme-night' ? 'bg-slate-800' : 'bg-white';
+  const outerBg  = activeTheme === 'theme-night' ? 'bg-slate-900' : activeTheme === 'theme-sakura' ? 'bg-pink-50' : activeTheme === 'theme-american' ? 'bg-red-50' : activeTheme === 'theme-sunset' ? 'bg-gradient-to-b from-orange-100 via-rose-100 to-purple-100' : 'bg-amber-50';
+  const cardBg   = activeTheme === 'theme-night' ? 'bg-slate-800' : activeTheme === 'theme-sunset' ? 'bg-white/80 backdrop-blur-sm' : 'bg-white';
   const textMain = activeTheme === 'theme-night' ? 'text-gray-100' : 'text-gray-800';
   const textSub  = activeTheme === 'theme-night' ? 'text-gray-400' : 'text-gray-600';
-  const accentText  = activeTheme === 'theme-night' ? 'text-indigo-400' : activeTheme === 'theme-sakura' ? 'text-rose-500' : activeTheme === 'theme-american' ? 'text-blue-600' : 'text-orange-600';
-  const accentHover = activeTheme === 'theme-night' ? 'hover:text-indigo-300' : activeTheme === 'theme-sakura' ? 'hover:text-rose-700' : activeTheme === 'theme-american' ? 'hover:text-blue-800' : 'hover:text-orange-800';
+  const accentText  = activeTheme === 'theme-night' ? 'text-indigo-400' : activeTheme === 'theme-sakura' ? 'text-rose-500' : activeTheme === 'theme-american' ? 'text-blue-600' : activeTheme === 'theme-sunset' ? 'text-rose-500' : 'text-orange-600';
+  const accentHover = activeTheme === 'theme-night' ? 'hover:text-indigo-300' : activeTheme === 'theme-sakura' ? 'hover:text-rose-700' : activeTheme === 'theme-american' ? 'hover:text-blue-800' : activeTheme === 'theme-sunset' ? 'hover:text-rose-700' : 'hover:text-orange-800';
 
   const tabActive = activeTheme === 'theme-night'
     ? 'bg-indigo-600 text-white'
@@ -58,7 +61,9 @@ export default function RecipeBook({ onBack, unlockedItems, activeTheme, customR
       ? 'bg-rose-400 text-white'
       : activeTheme === 'theme-american'
         ? 'bg-blue-600 text-white'
-        : 'bg-orange-600 text-white';
+        : activeTheme === 'theme-sunset'
+          ? 'bg-gradient-to-r from-orange-500 via-rose-500 to-purple-500 text-white'
+          : 'bg-orange-600 text-white';
 
   const tabInactive = activeTheme === 'theme-night'
     ? 'bg-slate-700 text-indigo-300 hover:bg-slate-600'
@@ -66,7 +71,9 @@ export default function RecipeBook({ onBack, unlockedItems, activeTheme, customR
       ? 'bg-pink-100 text-rose-600 hover:bg-pink-200'
       : activeTheme === 'theme-american'
         ? 'bg-red-100 text-blue-600 hover:bg-red-200'
-        : 'bg-amber-50 text-amber-700 hover:bg-amber-100';
+        : activeTheme === 'theme-sunset'
+          ? 'bg-orange-50 text-rose-600 hover:bg-rose-100'
+          : 'bg-amber-50 text-amber-700 hover:bg-amber-100';
 
   return (
     <div className={`min-h-screen ${outerBg} p-4`}>
@@ -123,6 +130,11 @@ export default function RecipeBook({ onBack, unlockedItems, activeTheme, customR
         {activeTab === 'american' && !americanUnlocked && (
           <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-blue-600 flex items-center gap-2">
             🔒 Unlock <strong>American Diner</strong> in the Shop (3 coins) to play this mode!
+          </div>
+        )}
+        {activeTab === 'sunset' && !sunsetUnlocked && (
+          <div className="mb-4 p-3 bg-orange-50 border border-rose-200 rounded-lg text-sm text-rose-600 flex items-center gap-2">
+            🔒 Unlock <strong>Meow-Meow Mocktail Bar</strong> in the Shop (4 coins) to mix these drinks!
           </div>
         )}
 
@@ -206,6 +218,8 @@ export default function RecipeBook({ onBack, unlockedItems, activeTheme, customR
               cardClass = 'border-indigo-200 bg-indigo-50';
             } else if (recipe.theme === 'american') {
               cardClass = 'border-red-200 bg-red-50';
+            } else if (recipe.theme === 'sunset') {
+              cardClass = 'border-rose-200 bg-gradient-to-br from-orange-50 to-rose-50';
             } else if (recipe.vipOnly) {
               cardClass = 'border-yellow-300 bg-yellow-50';
             } else {
@@ -222,13 +236,16 @@ export default function RecipeBook({ onBack, unlockedItems, activeTheme, customR
                   ? 'text-indigo-700'
                   : recipe.theme === 'american'
                     ? 'text-blue-700'
-                    : recipe.vipOnly
-                      ? 'text-yellow-700'
-                      : textMain;
+                    : recipe.theme === 'sunset'
+                      ? 'text-rose-600'
+                      : recipe.vipOnly
+                        ? 'text-yellow-700'
+                        : textMain;
 
             const ptsColor = recipe.theme === 'sakura' ? 'text-rose-500'
               : recipe.theme === 'night'    ? 'text-indigo-500'
               : recipe.theme === 'american' ? 'text-blue-600'
+              : recipe.theme === 'sunset'   ? 'text-rose-500'
               : 'text-orange-600';
 
             return (
@@ -252,6 +269,7 @@ export default function RecipeBook({ onBack, unlockedItems, activeTheme, customR
                   {recipe.theme === 'sakura'   && <span className="text-rose-400 font-medium">🌸 Sakura</span>}
                   {recipe.theme === 'night'    && <span className="text-indigo-400 font-medium">🌙 Night</span>}
                   {recipe.theme === 'american' && <span className="text-blue-500 font-medium">🍔 Diner</span>}
+                  {recipe.theme === 'sunset'   && <span className="text-rose-400 font-medium">🍹 Mocktail</span>}
                 </div>
 
                 {/* Ingredient chips */}

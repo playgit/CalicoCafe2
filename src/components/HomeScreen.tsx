@@ -268,6 +268,24 @@ export default function HomeScreen({ onPlay, onAbout, onBack, onShop, onRecipeBo
                   Lunch Rush ⚡ Hard
                 </button>
                 <button
+                  onClick={() => { setShowModes(false); onPlay('endless'); }}
+                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 px-6 rounded-lg transition flex items-center justify-center gap-2 font-bold"
+                >
+                  ♾ Endless Survival
+                </button>
+                <button
+                  onClick={() => { setShowModes(false); onPlay('memory'); }}
+                  className="w-full bg-teal-600 hover:bg-teal-700 text-white py-3 px-6 rounded-lg transition flex items-center justify-center gap-2 font-bold"
+                >
+                  🧠 Memory Café
+                </button>
+                <button
+                  onClick={() => { setShowModes(false); onPlay('vip-royale'); }}
+                  className="w-full bg-yellow-400 hover:bg-yellow-500 text-amber-900 py-3 px-6 rounded-lg transition flex items-center justify-center gap-2 font-bold"
+                >
+                  👑 VIP Royale
+                </button>
+                <button
                   onClick={() => { setShowModes(false); onCreativeMode(); }}
                   className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 px-6 rounded-lg transition flex items-center justify-center gap-2 font-bold"
                 >

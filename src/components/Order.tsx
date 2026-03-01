@@ -7,6 +7,7 @@ interface OrderProps {
   order: OrderType;
   onComplete: (points: number) => void;
   onTimeout: () => void;
+  revealed?: boolean;
 }
 
 function TimerBadge({ timeLeft }: { timeLeft: number }) {
@@ -19,7 +20,7 @@ function TimerBadge({ timeLeft }: { timeLeft: number }) {
   );
 }
 
-export default function Order({ order, onComplete, onTimeout }: OrderProps) {
+export default function Order({ order, onComplete, onTimeout, revealed = true }: OrderProps) {
   useEffect(() => {
     if (order.timeLeft <= 0) {
       onTimeout();
@@ -112,22 +113,29 @@ export default function Order({ order, onComplete, onTimeout }: OrderProps) {
       </div>
       <div className={`mt-3 pt-3 border-t ${order.customer.isVIP ? 'border-yellow-200' : 'border-gray-200'}`}>
         <p className="text-sm font-semibold text-gray-800">Ordered: {order.recipe.name}</p>
-        <div className="flex flex-wrap gap-1 mt-2">
-          {order.recipe.ingredients.map((ingredientId, index) => {
-            const ingredient = INGREDIENTS.find(i => i.id === ingredientId);
-            return (
-              <div key={index} className="group relative">
-                <div className={`flex items-center gap-1 ${ingredient?.color} px-2.5 py-1.5 rounded-md text-xs font-medium shadow-sm`}>
-                  <span>{ingredient?.emoji}</span>
-                  <span>{ingredient?.name}</span>
+        {revealed ? (
+          <div className="flex flex-wrap gap-1 mt-2">
+            {order.recipe.ingredients.map((ingredientId, index) => {
+              const ingredient = INGREDIENTS.find(i => i.id === ingredientId);
+              return (
+                <div key={index} className="group relative">
+                  <div className={`flex items-center gap-1 ${ingredient?.color} px-2.5 py-1.5 rounded-md text-xs font-medium shadow-sm`}>
+                    <span>{ingredient?.emoji}</span>
+                    <span>{ingredient?.name}</span>
+                  </div>
+                  <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap z-10">
+                    {ingredient?.name}
+                  </div>
                 </div>
-                <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap z-10">
-                  {ingredient?.name}
-                </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="flex items-center justify-center gap-2 mt-2 py-2 bg-gray-100 rounded-lg border border-dashed border-gray-300">
+            <span className="text-lg">🤔</span>
+            <span className="text-sm text-gray-500 italic">Cook from memory!</span>
+          </div>
+        )}
         {order.customer.isVIP && (
           <div className="flex items-center gap-3 mt-2">
             <p className="text-xs text-yellow-600 font-medium">✨ Double points!</p>

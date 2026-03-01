@@ -8,6 +8,7 @@ interface KitchenProps {
   onOrderComplete: (orderId: string, points: number) => void;
   onWrongOrder: (penalty: number) => void;
   gameMode?: GameMode;
+  activeTheme?: string;
 }
 
 type Tab = 'food' | 'sweet' | 'drink';
@@ -24,14 +25,30 @@ const TAB_LABELS: Record<Tab, string> = {
   drink: '🧋 Drinks',
 };
 
+const SUNSET_INGREDIENT_GROUPS: Record<Tab, string[]> = {
+  food:  ['passionfruit', 'mango', 'pineapple', 'watermelon', 'lychee', 'dragon-fruit', 'lime', 'fruit', 'coconut'],
+  sweet: ['grenadine', 'rose-syrup', 'honey', 'agave', 'lavender', 'sakura', 'hibiscus', 'butterfly-pea'],
+  drink: ['soda-water', 'crushed-ice', 'boba', 'espresso', 'ginger', 'mint', 'gold-leaf'],
+};
+
+const SUNSET_TAB_LABELS: Record<Tab, string> = {
+  food:  '🍹 Fruits',
+  sweet: '🌺 Floral',
+  drink: '🫧 Bar',
+};
+
 const NEKO_ALLOWED: string[] = [
   'shrimp', 'sauce', 'rice', 'tofu', 'red-bean',
   'mochi-flour', 'cream', 'fruit', 'lychee', 'coconut',
 ];
 
-export default function Kitchen({ currentOrders, onOrderComplete, onWrongOrder, gameMode }: KitchenProps) {
+export default function Kitchen({ currentOrders, onOrderComplete, onWrongOrder, gameMode, activeTheme }: KitchenProps) {
   const [selectedIngredients, setSelectedIngredients] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<Tab>('food');
+
+  const isSunset = activeTheme === 'theme-sunset';
+  const groups = isSunset ? SUNSET_INGREDIENT_GROUPS : INGREDIENT_GROUPS;
+  const labels = isSunset ? SUNSET_TAB_LABELS : TAB_LABELS;
 
   const hasVIPOrder = currentOrders.some(order => order.customer.isVIP);
   const maxIngredients = hasVIPOrder ? 6 : 4;
@@ -39,7 +56,7 @@ export default function Kitchen({ currentOrders, onOrderComplete, onWrongOrder, 
   // Which tabs contain ingredients needed by any active order
   const neededIds = new Set(currentOrders.flatMap(o => o.recipe.ingredients));
   const tabHasNeeded = (tab: Tab) =>
-    INGREDIENT_GROUPS[tab].some(id => neededIds.has(id));
+    groups[tab].some(id => neededIds.has(id));
 
   const isDrinkOrDessert = (ingredients: string[]) =>
     RECIPES.some(recipe => {
@@ -63,6 +80,21 @@ export default function Kitchen({ currentOrders, onOrderComplete, onWrongOrder, 
 
   const handleCook = () => {
     if (selectedIngredients.length === 0) return;
+
+    // Regular order matching — checked first so special customers don't intercept
+    // submissions intended for other active orders (e.g. Duchess alongside Inspector)
+    const matchedOrder = currentOrders.find(order =>
+      order.recipe.ingredients.length === selectedIngredients.length &&
+      order.recipe.ingredients.every(ing => selectedIngredients.includes(ing))
+    );
+
+    if (matchedOrder) {
+      onOrderComplete(matchedOrder.id, matchedOrder.recipe.points);
+      setSelectedIngredients([]);
+      return;
+    }
+
+    // Special customer fallback — only reached if no exact recipe match found
 
     // Inspector Pawsworth
     const inspectorOrder = currentOrders.find(o => o.customer.id === 'inspector');
@@ -111,30 +143,20 @@ export default function Kitchen({ currentOrders, onOrderComplete, onWrongOrder, 
       return;
     }
 
-    // Regular order matching
-    const matchedOrder = currentOrders.find(order =>
-      order.recipe.ingredients.length === selectedIngredients.length &&
-      order.recipe.ingredients.every(ing => selectedIngredients.includes(ing))
-    );
-
-    if (matchedOrder) {
-      onOrderComplete(matchedOrder.id, matchedOrder.recipe.points);
-    } else {
-      const penalty = Math.min(50, selectedIngredients.length * 10);
-      onWrongOrder(penalty);
-    }
-
+    // Nothing matched
+    const penalty = Math.min(50, selectedIngredients.length * 10);
+    onWrongOrder(penalty);
     setSelectedIngredients([]);
   };
 
-  const visibleIngredients = INGREDIENTS.filter(i => INGREDIENT_GROUPS[activeTab].includes(i.id));
+  const visibleIngredients = INGREDIENTS.filter(i => groups[activeTab].includes(i.id));
 
   return (
     <div className="bg-white rounded-xl shadow-md p-6 h-full flex flex-col">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <Utensils className="text-orange-600" />
-          <h2 className="text-xl font-semibold">Kitchen</h2>
+          <Utensils className={isSunset ? 'text-rose-500' : 'text-orange-600'} />
+          <h2 className="text-xl font-semibold">{isSunset ? 'Mocktail Bar' : 'Kitchen'}</h2>
           {gameMode === 'lunch-rush' && (
             <span className="bg-red-100 text-red-700 text-xs font-bold px-2 py-0.5 rounded-full ml-1">
               ⚡ RUSH
@@ -158,17 +180,17 @@ export default function Kitchen({ currentOrders, onOrderComplete, onWrongOrder, 
         <div>
           {/* Tabs */}
           <div className="flex gap-1 mb-3">
-            {(Object.keys(INGREDIENT_GROUPS) as Tab[]).map(tab => (
+            {(Object.keys(groups) as Tab[]).map(tab => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
                 className={`flex-1 py-1.5 rounded-lg text-sm font-medium transition relative ${
                   activeTab === tab
-                    ? 'bg-orange-600 text-white shadow-sm'
-                    : 'bg-amber-50 text-amber-700 hover:bg-amber-100'
+                    ? isSunset ? 'bg-gradient-to-r from-orange-500 via-rose-500 to-purple-500 text-white shadow-sm' : 'bg-orange-600 text-white shadow-sm'
+                    : isSunset ? 'bg-orange-50 text-rose-600 hover:bg-rose-100' : 'bg-amber-50 text-amber-700 hover:bg-amber-100'
                 }`}
               >
-                {TAB_LABELS[tab]}
+                {labels[tab]}
                 {tabHasNeeded(tab) && activeTab !== tab && (
                   <span className="absolute top-1 right-1 w-2 h-2 bg-orange-400 rounded-full" />
                 )}
@@ -198,8 +220,8 @@ export default function Kitchen({ currentOrders, onOrderComplete, onWrongOrder, 
         </div>
 
         {/* Cooking station */}
-        <div className="border-2 border-dashed border-orange-200 rounded-xl p-4 flex flex-col">
-          <h3 className="font-medium mb-3 text-gray-700">Cooking Station</h3>
+        <div className={`border-2 border-dashed rounded-xl p-4 flex flex-col ${isSunset ? 'border-rose-300' : 'border-orange-200'}`}>
+          <h3 className="font-medium mb-3 text-gray-700">{isSunset ? 'Mixing Station' : 'Cooking Station'}</h3>
 
           <div className="flex-1 flex flex-wrap gap-2 content-start mb-4 min-h-[120px]">
             {selectedIngredients.map((ingredientId, index) => {
@@ -219,7 +241,7 @@ export default function Kitchen({ currentOrders, onOrderComplete, onWrongOrder, 
             })}
             {selectedIngredients.length === 0 && (
               <p className="text-gray-400 text-sm self-center w-full text-center pt-4">
-                ✨ Pick ingredients to start cooking!
+                {isSunset ? '🍹 Pick ingredients to mix a mocktail!' : '✨ Pick ingredients to start cooking!'}
               </p>
             )}
           </div>
@@ -230,10 +252,14 @@ export default function Kitchen({ currentOrders, onOrderComplete, onWrongOrder, 
             className={`w-full py-2.5 rounded-lg font-semibold transition ${
               selectedIngredients.length === 0
                 ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                : 'bg-orange-600 text-white hover:bg-orange-700 shadow-sm hover:shadow-md ring-2 ring-orange-300'
+                : isSunset
+                  ? 'bg-gradient-to-r from-orange-500 via-rose-500 to-purple-500 text-white hover:from-orange-600 hover:via-rose-600 hover:to-purple-600 shadow-sm hover:shadow-md ring-2 ring-rose-300'
+                  : 'bg-orange-600 text-white hover:bg-orange-700 shadow-sm hover:shadow-md ring-2 ring-orange-300'
             }`}
           >
-            {selectedIngredients.length === 0 ? 'Add ingredients to cook' : '🍳 Cook!'}
+            {selectedIngredients.length === 0
+              ? (isSunset ? 'Add ingredients to mix' : 'Add ingredients to cook')
+              : (isSunset ? '🍹 Mix!' : '🍳 Cook!')}
           </button>
         </div>
       </div>
