@@ -60,6 +60,6 @@ export interface CustomRecipe {
   id: string;
   name: string;
   ingredients: string[];
-  category: 'regular' | 'american' | 'vip' | 'sakura';
+  category: 'regular' | 'american' | 'vip' | 'sakura' | 'sunset';
   savedAt: number;
 }
