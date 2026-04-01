@@ -15,6 +15,8 @@ const SAVORY_INGREDIENTS = new Set([
   'fish', 'chicken', 'shrimp', 'patty', 'pepperoni',  // meats
   'nori', 'vegetables',                                 // vegetables
   'miso', 'sauce',                                      // savory sauces
+  'bacon', 'campfire-smoke', 'cornbread',               // campfire savory
+  'crab', 'kelp', 'driftwood-smoke',                    // ocean savory
 ]);
 
 // Sweet and drink ingredients — anything from the sweet or drink bucket
@@ -200,10 +202,65 @@ const SIGNATURE_PAIRS = new Map<string, string>([
   ['crushed-ice|espresso',     'Iced Espresso'],
   ['lavender|lychee',          'Lavender Lychee Fizz'],
   ['passionfruit|pineapple',   '{adj} Punch'],
+  // Cosmic pairs
+  ['galaxy-swirl|stardust',     'Galaxy Swirl Latte'],
+  ['cosmic-berry|nebula-cream', 'Nebula Parfait'],
+  ['meteorite-crumble|stardust','Cosmic Crumble'],
+  ['moon-cheese|rice',          'Moon Cheese Toast'],
+  ['rice|rocket-pepper',        'Meteor Stir-Fry'],
+  ['aurora-jelly|tea',          'Aurora Borealis Tea'],
+  ['soda-water|starfruit',      'Starfruit Fizz'],
+  ['galaxy-swirl|nebula-cream', 'Milky Way Smoothie'],
+  ['space-honey|stardust',      '{adj} Stellar Sweet'],
+  ['cosmic-berry|mochi-flour',  'Starlight Mochi'],
+  // Campfire pairs
+  ['graham-cracker|marshmallow','Classic S\'mores'],
+  ['dark-chocolate|marshmallow','Campfire Cocoa'],
+  ['bacon|maple-syrup',         'Maple Bacon Pancakes'],
+  ['campfire-smoke|vegetables', 'Fireside Stew'],
+  ['firewood-honey|pine-nuts',  'Pine Nut Granola'],
+  ['campfire-smoke|cornbread',  'Smoky Cornbread'],
+  ['cream|wild-berry',          'Wild Berry Crumble'],
+  ['firewood-honey|tea',        'Campfire Chai'],
+  ['bacon|egg',                 'Lumberjack Breakfast'],
+  ['graham-cracker|wild-berry', '{adj} Trail Mix'],
+  // Zen pairs
+  ['bamboo-shoot|matcha',       'Zen Matcha Bowl'],
+  ['dashi|seaweed',             'Stone Garden Soup'],
+  ['bamboo-shoot|mochi-flour',  'Bamboo Steam Buns'],
+  ['miso|yuzu',                 'Yuzu Miso Soup'],
+  ['rice|wasabi',               'Wasabi Rice Bowl'],
+  ['mochi-flour|sesame',        'Sesame Mochi'],
+  ['edamame|rice-vinegar',      'Edamame Zen Salad'],
+  ['rice|umeboshi',             'Umeboshi Rice'],
+  ['honey|yuzu',                'Yuzu Honey Tea'],
+  ['matcha|yuzu',               'Bamboo Matcha Latte'],
+  // Candy pairs
+  ['cotton-candy|sprinkles',    'Cotton Candy Cloud'],
+  ['cream|gummy-bears',         'Gummy Bear Sundae'],
+  ['frosting|sprinkles',        'Sprinkle Explosion Cake'],
+  ['caramel|wafer',             'Caramel Crunch Bowl'],
+  ['bubblegum|cream',           'Bubblegum Shake'],
+  ['rock-candy|tea',            'Rock Candy Tea'],
+  ['jelly-bean|mochi-flour',    'Jelly Bean Parfait'],
+  ['pop-rocks|soda-water',      'Pop Rocks Soda'],
+  ['frosting|wafer',            'Frosted Wafer Stack'],
+  ['cotton-candy|dark-chocolate','{adj} Sugar Rush'],
+  // Ocean pairs
+  ['coral-sugar|ocean-jelly',   'Ocean Jelly Parfait'],
+  ['cream|seafoam',             'Seafoam Latte'],
+  ['crab|rice',                 'Coastal Crab Roll'],
+  ['pearl-tapioca|tea',         'Pearl Tea'],
+  ['driftwood-smoke|fish',      'Driftwood Smoked Fish'],
+  ['kelp|noodles',              'Kelp Noodle Bowl'],
+  ['coconut|sand-cookie',       'Sand Cookie Tower'],
+  ['lemon|seafoam',             'Ocean Breeze Smoothie'],
+  ['dashi|sea-salt',            'Tide Pool Soup'],
+  ['mochi-flour|sea-salt',      'Seaside Mochi'],
 ]);
 
 // Ingredient → semantic bucket for dominant-category fallback
-type Bucket = 'protein' | 'starch' | 'sweet' | 'drink' | 'dairy' | 'veggie' | 'luxury' | 'mocktail';
+type Bucket = 'protein' | 'starch' | 'sweet' | 'drink' | 'dairy' | 'veggie' | 'luxury' | 'mocktail' | 'cosmic' | 'campfire' | 'zen' | 'candy' | 'ocean';
 
 const INGREDIENT_BUCKETS: Record<string, Bucket> = {
   fish: 'protein', chicken: 'protein', shrimp: 'protein', egg: 'protein',
@@ -224,6 +281,28 @@ const INGREDIENT_BUCKETS: Record<string, Bucket> = {
   hibiscus: 'mocktail', 'crushed-ice': 'mocktail', boba: 'mocktail',
   agave: 'mocktail', 'butterfly-pea': 'mocktail', 'soda-water': 'mocktail',
   espresso: 'mocktail',
+  // Cosmic ingredients
+  stardust: 'cosmic', 'moon-cheese': 'cosmic', 'galaxy-swirl': 'cosmic',
+  'meteorite-crumble': 'cosmic', 'nebula-cream': 'cosmic', 'cosmic-berry': 'cosmic',
+  starfruit: 'cosmic', 'space-honey': 'cosmic', 'rocket-pepper': 'cosmic',
+  'aurora-jelly': 'cosmic',
+  // Campfire ingredients
+  marshmallow: 'campfire', 'graham-cracker': 'campfire', 'maple-syrup': 'campfire',
+  bacon: 'campfire', cornbread: 'campfire', 'campfire-smoke': 'campfire',
+  'pine-nuts': 'campfire', 'wild-berry': 'campfire', 'cast-iron-butter': 'campfire',
+  'firewood-honey': 'campfire',
+  // Zen ingredients
+  sesame: 'zen', yuzu: 'zen', 'bamboo-shoot': 'zen', edamame: 'zen',
+  wasabi: 'zen', 'pickled-ginger': 'zen', umeboshi: 'zen', dashi: 'zen',
+  seaweed: 'zen', 'rice-vinegar': 'zen',
+  // Candy ingredients
+  'cotton-candy': 'candy', sprinkles: 'candy', 'gummy-bears': 'candy',
+  caramel: 'candy', bubblegum: 'candy', 'rock-candy': 'candy',
+  'jelly-bean': 'candy', frosting: 'candy', wafer: 'candy', 'pop-rocks': 'candy',
+  // Ocean ingredients
+  'sea-salt': 'ocean', crab: 'ocean', kelp: 'ocean', 'ocean-jelly': 'ocean',
+  'coral-sugar': 'ocean', 'sand-cookie': 'ocean', 'pearl-tapioca': 'ocean',
+  'driftwood-smoke': 'ocean', lemon: 'ocean', seafoam: 'ocean',
 };
 
 const FALLBACK_NAMES: Record<Bucket | 'mixed', string[]> = {
@@ -235,6 +314,11 @@ const FALLBACK_NAMES: Record<Bucket | 'mixed', string[]> = {
   veggie:   ['Garden Medley', 'Fresh Veggie Bowl', 'Seasonal Greens Plate'],
   luxury:   ['Imperial Creation', 'Golden Masterpiece', 'Royal Indulgence'],
   mocktail: ['{adj} Mocktail', 'Sunset Sipper', 'Tropical Mystery Drink', '{adj} Fizzy Creation'],
+  cosmic:   ['Stellar Creation', '{adj} Nebula Dish', 'Deep Space Delight', 'Cosmic Mystery'],
+  campfire: ['{adj} Campfire Plate', 'Fireside Special', 'Rustic Trail Dish', 'Outdoor Feast'],
+  zen:      ['{adj} Zen Bowl', 'Garden Harmony Dish', 'Tranquil Creation', 'Mindful Plate'],
+  candy:    ['{adj} Sugar Bomb', 'Candy Surprise', 'Sweet Shop Special', 'Sugar Rush Creation'],
+  ocean:    ['{adj} Seaside Plate', 'Ocean Catch Special', 'Coastal Creation', 'Tidal Treat'],
   mixed:    ['{adj} Fusion Creation', 'Cat Caf\u00e9 Mystery', 'Chef\'s Surprise Plate'],
 };
 

@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { ArrowLeft, Trash2 } from 'lucide-react';
 import { RECIPES, INGREDIENTS } from '../data/recipes';
 import { Recipe, CustomRecipe } from '../types/game';
+import { getThemeConfig, getRecipeThemeConfig } from '../data/themeConfig';
 
-type RecipeTab = 'all' | 'food' | 'dessert' | 'drink' | 'sakura' | 'night' | 'american' | 'sunset' | 'vip' | 'custom';
+type RecipeTab = 'all' | 'food' | 'dessert' | 'drink' | 'sakura' | 'night' | 'american' | 'sunset' | 'cosmic' | 'campfire' | 'zen' | 'candy' | 'ocean' | 'vip' | 'custom';
 
 interface RecipeBookProps {
   onBack: () => void;
@@ -18,27 +19,27 @@ const TABS: { id: RecipeTab; label: string; lockedTheme?: string }[] = [
   { id: 'food',     label: '🍱 Food' },
   { id: 'dessert',  label: '🍡 Desserts' },
   { id: 'drink',    label: '🧋 Drinks' },
-  { id: 'sakura',   label: '🌸 Sakura',   lockedTheme: 'theme-sakura' },
-  { id: 'night',    label: '🌙 Night',    lockedTheme: 'theme-night' },
-  { id: 'american', label: '🍔 American', lockedTheme: 'theme-american' },
+  { id: 'sakura',   label: '🌸 Sakura',    lockedTheme: 'theme-sakura' },
+  { id: 'night',    label: '🌙 Night',     lockedTheme: 'theme-night' },
+  { id: 'american', label: '🍔 American',  lockedTheme: 'theme-american' },
   { id: 'sunset',   label: '🍹 Mocktails', lockedTheme: 'theme-sunset' },
+  { id: 'cosmic',   label: '🌌 Cosmic',    lockedTheme: 'theme-cosmic' },
+  { id: 'campfire', label: '🏕️ Campfire',  lockedTheme: 'theme-campfire' },
+  { id: 'zen',      label: '🎋 Zen',       lockedTheme: 'theme-zen' },
+  { id: 'candy',    label: '🍭 Candy',     lockedTheme: 'theme-candy' },
+  { id: 'ocean',    label: '🌊 Ocean',     lockedTheme: 'theme-ocean' },
   { id: 'vip',      label: '⭐ VIP' },
   { id: 'custom',   label: '✏️ My Recipes' },
 ];
 
 export default function RecipeBook({ onBack, unlockedItems, activeTheme, customRecipes, onDeleteCustomRecipe }: RecipeBookProps) {
   const [activeTab, setActiveTab] = useState<RecipeTab>('all');
-
-  const sakuraUnlocked   = unlockedItems.includes('theme-sakura');
-  const nightUnlocked    = unlockedItems.includes('theme-night');
-  const americanUnlocked = unlockedItems.includes('theme-american');
-  const sunsetUnlocked   = unlockedItems.includes('theme-sunset');
+  const tc = getThemeConfig(activeTheme);
 
   const isRecipeLocked = (recipe: Recipe) => {
-    if (recipe.theme === 'sakura')   return !sakuraUnlocked;
-    if (recipe.theme === 'night')    return !nightUnlocked;
-    if (recipe.theme === 'american') return !americanUnlocked;
-    if (recipe.theme === 'sunset')   return !sunsetUnlocked;
+    if (recipe.theme) {
+      return !unlockedItems.includes(`theme-${recipe.theme}`);
+    }
     return false;
   };
 
@@ -47,43 +48,18 @@ export default function RecipeBook({ onBack, unlockedItems, activeTheme, customR
     return recipe.category === activeTab;
   });
 
-  // Outer bg/card follow active theme
-  const outerBg  = activeTheme === 'theme-night' ? 'bg-slate-900' : activeTheme === 'theme-sakura' ? 'bg-pink-50' : activeTheme === 'theme-american' ? 'bg-red-50' : activeTheme === 'theme-sunset' ? 'bg-gradient-to-b from-orange-100 via-rose-100 to-purple-100' : 'bg-amber-50';
-  const cardBg   = activeTheme === 'theme-night' ? 'bg-slate-800' : activeTheme === 'theme-sunset' ? 'bg-white/80 backdrop-blur-sm' : 'bg-white';
-  const textMain = activeTheme === 'theme-night' ? 'text-gray-100' : 'text-gray-800';
-  const textSub  = activeTheme === 'theme-night' ? 'text-gray-400' : 'text-gray-600';
-  const accentText  = activeTheme === 'theme-night' ? 'text-indigo-400' : activeTheme === 'theme-sakura' ? 'text-rose-500' : activeTheme === 'theme-american' ? 'text-blue-600' : activeTheme === 'theme-sunset' ? 'text-rose-500' : 'text-orange-600';
-  const accentHover = activeTheme === 'theme-night' ? 'hover:text-indigo-300' : activeTheme === 'theme-sakura' ? 'hover:text-rose-700' : activeTheme === 'theme-american' ? 'hover:text-blue-800' : activeTheme === 'theme-sunset' ? 'hover:text-rose-700' : 'hover:text-orange-800';
-
-  const tabActive = activeTheme === 'theme-night'
-    ? 'bg-indigo-600 text-white'
-    : activeTheme === 'theme-sakura'
-      ? 'bg-rose-400 text-white'
-      : activeTheme === 'theme-american'
-        ? 'bg-blue-600 text-white'
-        : activeTheme === 'theme-sunset'
-          ? 'bg-gradient-to-r from-orange-500 via-rose-500 to-purple-500 text-white'
-          : 'bg-orange-600 text-white';
-
-  const tabInactive = activeTheme === 'theme-night'
-    ? 'bg-slate-700 text-indigo-300 hover:bg-slate-600'
-    : activeTheme === 'theme-sakura'
-      ? 'bg-pink-100 text-rose-600 hover:bg-pink-200'
-      : activeTheme === 'theme-american'
-        ? 'bg-red-100 text-blue-600 hover:bg-red-200'
-        : activeTheme === 'theme-sunset'
-          ? 'bg-orange-50 text-rose-600 hover:bg-rose-100'
-          : 'bg-amber-50 text-amber-700 hover:bg-amber-100';
+  const textMain = tc.text;
+  const textSub = tc.subtext;
 
   return (
-    <div className={`min-h-screen ${outerBg} p-4`}>
-      <div className={`max-w-5xl mx-auto ${cardBg} rounded-xl shadow-lg p-8`}>
+    <div className={`min-h-screen ${tc.bg} p-4`}>
+      <div className={`max-w-5xl mx-auto ${tc.card} rounded-xl shadow-lg p-8`}>
 
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <button
             onClick={onBack}
-            className={`flex items-center gap-2 ${accentText} ${accentHover} transition`}
+            className={`flex items-center gap-2 ${tc.rbAccentText} ${tc.rbAccentHover} transition`}
           >
             <ArrowLeft className="w-5 h-5" />
             Back
@@ -97,16 +73,16 @@ export default function RecipeBook({ onBack, unlockedItems, activeTheme, customR
 
         <h1 className={`text-3xl font-bold text-center ${textMain} mb-8`}>📖 Recipe Book</h1>
 
-        {/* Tab bar */}
-        <div className="flex flex-wrap gap-2 mb-6">
+        {/* Tab bar — horizontal scroll for many tabs */}
+        <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
           {TABS.map(tab => {
             const isTabLocked = tab.lockedTheme ? !unlockedItems.includes(tab.lockedTheme) : false;
             return (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-1 ${
-                  activeTab === tab.id ? tabActive : tabInactive
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-1 whitespace-nowrap ${
+                  activeTab === tab.id ? tc.tabActive : tc.tabInactive
                 }`}
               >
                 {tab.label}
@@ -116,27 +92,19 @@ export default function RecipeBook({ onBack, unlockedItems, activeTheme, customR
           })}
         </div>
 
-        {/* Lock notice banners */}
-        {activeTab === 'sakura' && !sakuraUnlocked && (
-          <div className="mb-4 p-3 bg-pink-50 border border-pink-200 rounded-lg text-sm text-rose-600 flex items-center gap-2">
-            🔒 Unlock <strong>Sakura Theme</strong> in the Shop (2 coins) to play this mode!
-          </div>
-        )}
-        {activeTab === 'night' && !nightUnlocked && (
-          <div className="mb-4 p-3 bg-indigo-50 border border-indigo-200 rounded-lg text-sm text-indigo-600 flex items-center gap-2">
-            🔒 Unlock <strong>Night Mode</strong> in the Shop (2 coins) to play this mode!
-          </div>
-        )}
-        {activeTab === 'american' && !americanUnlocked && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-blue-600 flex items-center gap-2">
-            🔒 Unlock <strong>American Diner</strong> in the Shop (3 coins) to play this mode!
-          </div>
-        )}
-        {activeTab === 'sunset' && !sunsetUnlocked && (
-          <div className="mb-4 p-3 bg-orange-50 border border-rose-200 rounded-lg text-sm text-rose-600 flex items-center gap-2">
-            🔒 Unlock <strong>Meow-Meow Mocktail Bar</strong> in the Shop (4 coins) to mix these drinks!
-          </div>
-        )}
+        {/* Lock notice banners — driven by config */}
+        {TABS.map(tab => {
+          if (!tab.lockedTheme || activeTab !== tab.id) return null;
+          if (unlockedItems.includes(tab.lockedTheme)) return null;
+          const tabTc = getThemeConfig(tab.lockedTheme);
+          const banner = tabTc.lockBanner;
+          if (!banner.message) return null;
+          return (
+            <div key={tab.id} className={`mb-4 p-3 ${banner.bg} border ${banner.border} rounded-lg text-sm ${banner.text} flex items-center gap-2`}
+              dangerouslySetInnerHTML={{ __html: banner.message }}
+            />
+          );
+        })}
 
         {/* Custom recipes tab */}
         {activeTab === 'custom' && (
@@ -149,14 +117,13 @@ export default function RecipeBook({ onBack, unlockedItems, activeTheme, customR
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {customRecipes.map(cr => {
                   const catLabel = cr.category === 'regular' ? '🍳 Regular'
-                    : cr.category === 'american' ? '🍔 American'
                     : cr.category === 'vip' ? '⭐ VIP'
-                    : '🌸 Sakura';
+                    : getRecipeThemeConfig(cr.category)?.recipeBadge || `📦 ${cr.category}`;
                   return (
                     <div
                       key={cr.id}
                       className={`relative border rounded-lg p-4 transition ${
-                        activeTheme === 'theme-night'
+                        tc.isDark
                           ? 'border-slate-600 bg-slate-700 hover:bg-slate-600'
                           : 'border-purple-200 bg-purple-50 hover:shadow-md'
                       }`}
@@ -169,7 +136,7 @@ export default function RecipeBook({ onBack, unlockedItems, activeTheme, customR
                         <Trash2 className="w-4 h-4" />
                       </button>
 
-                      <h3 className={`font-semibold mb-1 pr-6 ${activeTheme === 'theme-night' ? 'text-gray-100' : 'text-purple-800'}`}>
+                      <h3 className={`font-semibold mb-1 pr-6 ${tc.isDark ? 'text-gray-100' : 'text-purple-800'}`}>
                         {cr.name}
                       </h3>
 
@@ -207,45 +174,33 @@ export default function RecipeBook({ onBack, unlockedItems, activeTheme, customR
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredRecipes.map(recipe => {
             const locked = isRecipeLocked(recipe);
+            const recipeTc = recipe.theme ? getRecipeThemeConfig(recipe.theme) : null;
+
             let cardClass = '';
             if (locked) {
-              cardClass = activeTheme === 'theme-night'
+              cardClass = tc.isDark
                 ? 'border-slate-600 bg-slate-700 opacity-60'
                 : 'border-gray-200 bg-gray-50 opacity-60';
-            } else if (recipe.theme === 'sakura') {
-              cardClass = 'border-pink-200 bg-pink-50';
-            } else if (recipe.theme === 'night') {
-              cardClass = 'border-indigo-200 bg-indigo-50';
-            } else if (recipe.theme === 'american') {
-              cardClass = 'border-red-200 bg-red-50';
-            } else if (recipe.theme === 'sunset') {
-              cardClass = 'border-rose-200 bg-gradient-to-br from-orange-50 to-rose-50';
+            } else if (recipeTc) {
+              cardClass = recipeTc.recipeCardClass;
             } else if (recipe.vipOnly) {
               cardClass = 'border-yellow-300 bg-yellow-50';
             } else {
-              cardClass = activeTheme === 'theme-night'
+              cardClass = tc.isDark
                 ? 'border-slate-600 bg-slate-700 hover:bg-slate-600'
                 : 'border-amber-100 bg-white hover:shadow-md';
             }
 
             const nameColor = locked
               ? 'text-gray-400'
-              : recipe.theme === 'sakura'
-                ? 'text-rose-700'
-                : recipe.theme === 'night'
-                  ? 'text-indigo-700'
-                  : recipe.theme === 'american'
-                    ? 'text-blue-700'
-                    : recipe.theme === 'sunset'
-                      ? 'text-rose-600'
-                      : recipe.vipOnly
-                        ? 'text-yellow-700'
-                        : textMain;
+              : recipeTc
+                ? recipeTc.recipeNameColor
+                : recipe.vipOnly
+                  ? 'text-yellow-700'
+                  : textMain;
 
-            const ptsColor = recipe.theme === 'sakura' ? 'text-rose-500'
-              : recipe.theme === 'night'    ? 'text-indigo-500'
-              : recipe.theme === 'american' ? 'text-blue-600'
-              : recipe.theme === 'sunset'   ? 'text-rose-500'
+            const ptsColor = recipeTc
+              ? recipeTc.recipeBadgeColor || 'text-orange-600'
               : 'text-orange-600';
 
             return (
@@ -266,10 +221,9 @@ export default function RecipeBook({ onBack, unlockedItems, activeTheme, customR
                   {recipe.vipOnly && !recipe.theme && (
                     <span className="text-yellow-600 font-medium">⭐ VIP</span>
                   )}
-                  {recipe.theme === 'sakura'   && <span className="text-rose-400 font-medium">🌸 Sakura</span>}
-                  {recipe.theme === 'night'    && <span className="text-indigo-400 font-medium">🌙 Night</span>}
-                  {recipe.theme === 'american' && <span className="text-blue-500 font-medium">🍔 Diner</span>}
-                  {recipe.theme === 'sunset'   && <span className="text-rose-400 font-medium">🍹 Mocktail</span>}
+                  {recipeTc && recipeTc.recipeBadge && (
+                    <span className={`${recipeTc.recipeBadgeColor} font-medium`}>{recipeTc.recipeBadge}</span>
+                  )}
                 </div>
 
                 {/* Ingredient chips */}

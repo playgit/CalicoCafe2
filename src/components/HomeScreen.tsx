@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Cat, Play, Info, ArrowLeft, Trophy, Coffee, IceCream, Crown, Star, Clock, Heart, ShoppingBag, Coins, FlaskConical, Zap } from 'lucide-react';
 import { GameMode } from '../types/game';
+import { getThemeConfig } from '../data/themeConfig';
 
 interface ThemeClasses {
   bg: string;
@@ -26,40 +27,14 @@ interface HomeScreenProps {
 
 export default function HomeScreen({ onPlay, onAbout, onBack, onShop, onRecipeBook, onCreativeMode, showAbout, highScore, coins, activeTheme, themeClasses }: HomeScreenProps) {
   const [showModes, setShowModes] = useState(false);
-  // Derive accent colors for buttons based on active theme
-  const accentBtn = activeTheme === 'theme-night'
-    ? 'bg-indigo-600 hover:bg-indigo-700'
-    : activeTheme === 'theme-sakura'
-      ? 'bg-rose-400 hover:bg-rose-500'
-      : activeTheme === 'theme-american'
-        ? 'bg-blue-600 hover:bg-blue-700'
-        : 'bg-orange-600 hover:bg-orange-700';
-
-  const accentText = activeTheme === 'theme-night'
-    ? 'text-indigo-400'
-    : activeTheme === 'theme-sakura'
-      ? 'text-rose-500'
-      : activeTheme === 'theme-american'
-        ? 'text-blue-600'
-        : 'text-orange-600';
-
-  const iconColor = activeTheme === 'theme-night'
-    ? 'text-indigo-400'
-    : activeTheme === 'theme-sakura'
-      ? 'text-rose-400'
-      : activeTheme === 'theme-american'
-        ? 'text-blue-500'
-        : 'text-orange-600';
-
-  const bgIcon = activeTheme === 'theme-night'
-    ? 'text-indigo-800'
-    : activeTheme === 'theme-sakura'
-      ? 'text-rose-200'
-      : activeTheme === 'theme-american'
-        ? 'text-blue-200'
-        : 'text-orange-200';
-
-  const earColor = activeTheme === 'theme-night' ? '#4338ca' : activeTheme === 'theme-sakura' ? '#fb7185' : activeTheme === 'theme-american' ? '#2563eb' : '#ea580c';
+  const tc = getThemeConfig(activeTheme);
+  const accentBtn = tc.accentBtn;
+  const accentText = tc.accentText;
+  const iconColor = tc.iconColor;
+  const bgIcon = tc.bgIcon;
+  const earColor = tc.earColor;
+  const whiskerColor = tc.whiskerColor;
+  const pawColor = tc.pawColor;
 
   if (showAbout) {
     return (
@@ -80,7 +55,7 @@ export default function HomeScreen({ onPlay, onAbout, onBack, onShop, onRecipeBo
           </div>
 
           <div className={`space-y-5 ${themeClasses.text}`}>
-            <p className={`${activeTheme === 'theme-night' ? 'bg-indigo-900 border-indigo-700' : activeTheme === 'theme-sakura' ? 'bg-rose-50 border-rose-100' : activeTheme === 'theme-american' ? 'bg-blue-50 border-blue-100' : 'bg-orange-50 border-orange-100'} rounded-lg p-3 text-sm border`}>
+            <p className={`${tc.aboutBg} ${tc.aboutBorder} rounded-lg p-3 text-sm border`}>
               Welcome to Calico Café, where you'll serve a delightful array of dishes and drinks to our charming cat customers!
             </p>
 
@@ -114,7 +89,7 @@ export default function HomeScreen({ onPlay, onAbout, onBack, onShop, onRecipeBo
               <h2 className={`text-lg font-bold ${accentText} flex items-center gap-2 mb-2`}>
                 🌸 Seasonal Themes
               </h2>
-              <p className="text-sm">Unlock <strong>Sakura</strong>, <strong>Night</strong>, or <strong>American Diner</strong> themes in the Shop. When active, only that theme's exclusive recipes appear in orders!</p>
+              <p className="text-sm">Unlock themes in the Shop to transform your café! When active, only that theme's exclusive recipes appear in orders.</p>
             </div>
 
             <div>
@@ -194,14 +169,14 @@ export default function HomeScreen({ onPlay, onAbout, onBack, onShop, onRecipeBo
           <div className="absolute top-10 left-1/2 transform -translate-x-1/2 w-full px-4">
             <div className="flex justify-between">
               <div className="space-y-1.5">
-                <div className={`w-10 h-px ${activeTheme === 'theme-night' ? 'bg-indigo-400' : activeTheme === 'theme-sakura' ? 'bg-rose-300' : activeTheme === 'theme-american' ? 'bg-blue-300' : 'bg-orange-300'} transform rotate-6`} />
-                <div className={`w-10 h-px ${activeTheme === 'theme-night' ? 'bg-indigo-400' : activeTheme === 'theme-sakura' ? 'bg-rose-300' : activeTheme === 'theme-american' ? 'bg-blue-300' : 'bg-orange-300'}`} />
-                <div className={`w-10 h-px ${activeTheme === 'theme-night' ? 'bg-indigo-400' : activeTheme === 'theme-sakura' ? 'bg-rose-300' : activeTheme === 'theme-american' ? 'bg-blue-300' : 'bg-orange-300'} transform -rotate-6`} />
+                <div className={`w-10 h-px ${whiskerColor} transform rotate-6`} />
+                <div className={`w-10 h-px ${whiskerColor}`} />
+                <div className={`w-10 h-px ${whiskerColor} transform -rotate-6`} />
               </div>
               <div className="space-y-1.5">
-                <div className={`w-10 h-px ${activeTheme === 'theme-night' ? 'bg-indigo-400' : activeTheme === 'theme-sakura' ? 'bg-rose-300' : activeTheme === 'theme-american' ? 'bg-blue-300' : 'bg-orange-300'} transform -rotate-6`} />
-                <div className={`w-10 h-px ${activeTheme === 'theme-night' ? 'bg-indigo-400' : activeTheme === 'theme-sakura' ? 'bg-rose-300' : activeTheme === 'theme-american' ? 'bg-blue-300' : 'bg-orange-300'}`} />
-                <div className={`w-10 h-px ${activeTheme === 'theme-night' ? 'bg-indigo-400' : activeTheme === 'theme-sakura' ? 'bg-rose-300' : activeTheme === 'theme-american' ? 'bg-blue-300' : 'bg-orange-300'} transform rotate-6`} />
+                <div className={`w-10 h-px ${whiskerColor} transform -rotate-6`} />
+                <div className={`w-10 h-px ${whiskerColor}`} />
+                <div className={`w-10 h-px ${whiskerColor} transform rotate-6`} />
               </div>
             </div>
           </div>
@@ -221,7 +196,7 @@ export default function HomeScreen({ onPlay, onAbout, onBack, onShop, onRecipeBo
 
           {/* Stats */}
           <div className="flex gap-4 mb-8">
-            <div className={`flex-1 ${activeTheme === 'theme-night' ? 'bg-indigo-900 border-indigo-700' : activeTheme === 'theme-american' ? 'bg-blue-50 border-blue-100' : 'bg-gradient-to-r from-yellow-50 to-amber-50 border-yellow-100'} rounded-lg p-4 border`}>
+            <div className={`flex-1 ${tc.statsBg} ${tc.statsBorder} rounded-lg p-4 border`}>
               <div className="flex items-center justify-center gap-3">
                 <Trophy className="w-6 h-6 text-yellow-500 animate-pulse" />
                 <div>
@@ -230,7 +205,7 @@ export default function HomeScreen({ onPlay, onAbout, onBack, onShop, onRecipeBo
                 </div>
               </div>
             </div>
-            <div className={`flex-1 ${activeTheme === 'theme-night' ? 'bg-indigo-900 border-indigo-700' : activeTheme === 'theme-american' ? 'bg-blue-50 border-blue-100' : 'bg-gradient-to-r from-amber-50 to-yellow-50 border-amber-100'} rounded-lg p-4 border`}>
+            <div className={`flex-1 ${tc.statsBg} ${tc.statsBorder} rounded-lg p-4 border`}>
               <div className="flex items-center justify-center gap-3">
                 <Coins className="w-6 h-6 text-amber-500 animate-pulse" />
                 <div>
@@ -332,7 +307,7 @@ export default function HomeScreen({ onPlay, onAbout, onBack, onShop, onRecipeBo
             {[0, 1, 2].map(i => (
               <div
                 key={i}
-                className={`w-4 h-4 ${activeTheme === 'theme-night' ? 'bg-indigo-400' : activeTheme === 'theme-sakura' ? 'bg-rose-300' : activeTheme === 'theme-american' ? 'bg-blue-300' : 'bg-orange-200'} rounded-full animate-bounce`}
+                className={`w-4 h-4 ${pawColor} rounded-full animate-bounce`}
                 style={{ animationDelay: `${i * 200}ms` }}
               />
             ))}

@@ -13,7 +13,7 @@ export interface Recipe {
   points: number;
   timeLimit: number;
   vipOnly?: boolean;
-  theme?: 'sakura' | 'night' | 'american' | 'sunset';
+  theme?: 'sakura' | 'night' | 'american' | 'sunset' | 'cosmic' | 'campfire' | 'zen' | 'candy' | 'ocean';
   category?: string;
 }
 
@@ -60,6 +60,6 @@ export interface CustomRecipe {
   id: string;
   name: string;
   ingredients: string[];
-  category: 'regular' | 'american' | 'vip' | 'sakura' | 'sunset';
+  category: 'regular' | 'american' | 'vip' | 'sakura' | 'sunset' | 'cosmic' | 'campfire' | 'zen' | 'candy' | 'ocean';
   savedAt: number;
 }

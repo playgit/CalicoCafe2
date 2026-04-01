@@ -10,6 +10,7 @@ import RecipeBook from './components/RecipeBook';
 import CreativeMode from './components/CreativeMode';
 import { RECIPES } from './data/recipes';
 import { CAT_CUSTOMERS } from './data/customers';
+import { getThemeConfig } from './data/themeConfig';
 import { Order as OrderType, Recipe, ShopItem, ScorePopup, GameMode, CustomRecipe } from './types/game';
 
 // Score tiers for game over screen
@@ -95,12 +96,13 @@ function App() {
   useEffect(() => { localStorage.setItem('customRecipes', JSON.stringify(customRecipes)); }, [customRecipes]);
 
   // Derive theme classes for visual theming — applied to outer containers
+  const tc = getThemeConfig(activeTheme);
   const themeClasses = {
-    bg:      activeTheme === 'theme-night' ? 'bg-slate-900' : activeTheme === 'theme-sakura' ? 'bg-pink-50' : activeTheme === 'theme-american' ? 'bg-red-50' : activeTheme === 'theme-sunset' ? 'bg-gradient-to-b from-orange-100 via-rose-100 to-purple-100' : 'bg-amber-50',
-    header:  activeTheme === 'theme-night' ? 'bg-indigo-900' : activeTheme === 'theme-sakura' ? 'bg-rose-400' : activeTheme === 'theme-american' ? 'bg-blue-700' : activeTheme === 'theme-sunset' ? 'bg-gradient-to-r from-orange-500 via-rose-500 to-purple-600' : 'bg-orange-600',
-    card:    activeTheme === 'theme-night' ? 'bg-slate-800' : activeTheme === 'theme-sunset' ? 'bg-white/80 backdrop-blur-sm' : 'bg-white',
-    text:    activeTheme === 'theme-night' ? 'text-gray-100' : 'text-gray-800',
-    subtext: activeTheme === 'theme-night' ? 'text-gray-400' : 'text-gray-600',
+    bg: tc.bg,
+    header: tc.header,
+    card: tc.card,
+    text: tc.text,
+    subtext: tc.subtext,
   };
 
   // ─── Order generation ──────────────────────────────────────────────────────
@@ -153,11 +155,7 @@ function App() {
       const savedCustom = customRecipesRef.current;
       const customAsRecipes: Recipe[] = savedCustom
         .filter(cr => {
-          if (themeName === 'sakura') return cr.category === 'sakura';
-          if (themeName === 'american') return cr.category === 'american';
-          if (themeName === 'night') return false; // no custom night recipes
-          if (themeName === 'sunset') return false; // no custom sunset recipes
-          // default/no theme: only regular or vip custom recipes
+          if (themeName) return cr.category === themeName;
           return cr.category === 'regular' || cr.category === 'vip';
         })
         .filter(cr => {
@@ -581,7 +579,7 @@ function App() {
 
   const tier = getScoreTier(score);
   const isLunchRush = gameMode === 'lunch-rush';
-  const hdrBtn = activeTheme === 'theme-night' ? 'bg-indigo-800 hover:bg-indigo-700' : activeTheme === 'theme-sakura' ? 'bg-rose-500 hover:bg-rose-600' : activeTheme === 'theme-american' ? 'bg-blue-800 hover:bg-blue-900' : 'bg-orange-700 hover:bg-orange-800';
+  const hdrBtn = tc.headerBtn;
   const canPause = gameMode !== 'lunch-rush' && (gameMode !== 'memory' || revealedOrderIds.size === 0);
   const maxOrdersForMode = (isLunchRush || gameMode === 'memory' || gameMode === 'vip-royale') ? 2 : 3;
 

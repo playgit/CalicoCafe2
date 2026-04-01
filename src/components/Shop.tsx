@@ -2,6 +2,7 @@ import React from 'react';
 import { ArrowLeft, ShoppingBag, Cat } from 'lucide-react';
 import { SHOP_ITEMS } from '../data/shop';
 import { ShopItem } from '../types/game';
+import { getThemeConfig, THEME_CONFIG } from '../data/themeConfig';
 
 interface ThemeClasses {
   bg: string;
@@ -22,24 +23,7 @@ interface ShopProps {
 }
 
 export default function Shop({ onBack, coins, onPurchase, unlockedItems, activeTheme, onActivateTheme, themeClasses }: ShopProps) {
-  const accentText = activeTheme === 'theme-night'
-    ? 'text-indigo-400'
-    : activeTheme === 'theme-sakura'
-      ? 'text-rose-500'
-      : activeTheme === 'theme-american'
-        ? 'text-blue-600'
-        : 'text-orange-600';
-
-  const accentHover = activeTheme === 'theme-night'
-    ? 'hover:text-indigo-300'
-    : activeTheme === 'theme-sakura'
-      ? 'hover:text-rose-700'
-      : activeTheme === 'theme-american'
-        ? 'hover:text-blue-800'
-        : 'hover:text-orange-800';
-
-  const cardBorder = activeTheme === 'theme-night' ? 'border-slate-600' : 'border-amber-200 hover:border-amber-300';
-  const cardUnlockedBg = activeTheme === 'theme-night' ? 'bg-slate-700 border-slate-600' : 'bg-gray-50 border-gray-200';
+  const tc = getThemeConfig(activeTheme);
 
   return (
     <div className={`min-h-screen ${themeClasses.bg} p-4`}>
@@ -47,7 +31,7 @@ export default function Shop({ onBack, coins, onPurchase, unlockedItems, activeT
         <div className="flex items-center justify-between mb-6">
           <button
             onClick={onBack}
-            className={`flex items-center gap-2 ${accentText} ${accentHover} transition`}
+            className={`flex items-center gap-2 ${tc.shopAccentText} ${tc.shopAccentHover} transition`}
           >
             <ArrowLeft className="w-5 h-5" />
             Back
@@ -59,9 +43,9 @@ export default function Shop({ onBack, coins, onPurchase, unlockedItems, activeT
         </div>
 
         <div className="flex items-center justify-center gap-2 mb-8">
-          <Cat className={`w-7 h-7 ${accentText}`} />
+          <Cat className={`w-7 h-7 ${tc.shopAccentText}`} />
           <h1 className={`text-3xl font-bold ${themeClasses.text}`}>Calico Café Shop</h1>
-          <Cat className={`w-7 h-7 ${accentText}`} />
+          <Cat className={`w-7 h-7 ${tc.shopAccentText}`} />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -70,12 +54,13 @@ export default function Shop({ onBack, coins, onPurchase, unlockedItems, activeT
             const canAfford = coins >= item.cost;
             const isActive = activeTheme === item.id;
             const isTheme = item.type === 'theme';
+            const itemTc = THEME_CONFIG[item.id];
 
             return (
               <div
                 key={item.id}
                 className={`border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow ${
-                  isUnlocked ? cardUnlockedBg : `${themeClasses.card} ${cardBorder}`
+                  isUnlocked ? tc.shopCardUnlockedBg : `${themeClasses.card} ${tc.shopCardBorder}`
                 }`}
               >
                 <div className="flex justify-between items-start mb-2">
@@ -88,28 +73,21 @@ export default function Shop({ onBack, coins, onPurchase, unlockedItems, activeT
                 <p className={`${themeClasses.subtext} text-sm mb-4`}>{item.description}</p>
 
                 {isUnlocked && isTheme ? (
-                  // Unlocked theme: show active status + optional activate button
                   <div className="space-y-2">
                     <div className="w-full py-2 px-4 rounded bg-green-100 text-green-700 text-center text-sm font-medium">
                       ✓ Unlocked
                     </div>
                     {isActive ? (
                       <div className={`w-full py-2 px-4 rounded text-center text-sm font-semibold ${
-                        item.id === 'theme-sakura' ? 'bg-pink-100 text-rose-600'
-                        : item.id === 'theme-american' ? 'bg-blue-100 text-blue-700'
-                        : 'bg-indigo-100 text-indigo-700'
+                        itemTc ? itemTc.shopActiveBg : 'bg-orange-100 text-orange-700'
                       }`}>
-                        {item.id === 'theme-sakura' ? '🌸 Active' : item.id === 'theme-american' ? '🍔 Active' : '🌙 Active'}
+                        {itemTc ? itemTc.shopActiveLabel : '✓ Active'}
                       </div>
                     ) : (
                       <button
                         onClick={() => onActivateTheme(item.id)}
                         className={`w-full py-2 px-4 rounded transition text-sm font-medium text-white ${
-                          item.id === 'theme-sakura'
-                            ? 'bg-rose-400 hover:bg-rose-500'
-                            : item.id === 'theme-american'
-                              ? 'bg-blue-600 hover:bg-blue-700'
-                              : 'bg-indigo-600 hover:bg-indigo-700'
+                          itemTc ? itemTc.shopActivateBtn : 'bg-orange-600 hover:bg-orange-700'
                         }`}
                       >
                         Activate
@@ -137,7 +115,7 @@ export default function Shop({ onBack, coins, onPurchase, unlockedItems, activeT
         </div>
 
         {/* Theme switcher note */}
-        {unlockedItems.includes('theme-sakura') || unlockedItems.includes('theme-night') || unlockedItems.includes('theme-american') ? (
+        {unlockedItems.some(id => id.startsWith('theme-')) ? (
           <p className={`text-center text-sm ${themeClasses.subtext} mt-6`}>
             Tip: Click <strong>Activate</strong> on any unlocked theme to switch your café's look!
           </p>

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Utensils, Trash2 } from 'lucide-react';
 import { INGREDIENTS, RECIPES } from '../data/recipes';
 import { Order, GameMode } from '../types/game';
+import { getThemeConfig } from '../data/themeConfig';
 
 interface KitchenProps {
   currentOrders: Order[];
@@ -13,28 +14,71 @@ interface KitchenProps {
 
 type Tab = 'food' | 'sweet' | 'drink';
 
-const INGREDIENT_GROUPS: Record<Tab, string[]> = {
-  food:  ['fish', 'rice', 'nori', 'egg', 'sauce', 'noodles', 'tofu', 'chicken', 'vegetables', 'cheese', 'shrimp', 'miso', 'patty', 'bun', 'fries', 'pizza-dough', 'pepperoni'],
-  sweet: ['matcha', 'mochi-flour', 'red-bean', 'cream', 'fruit', 'lychee', 'coconut', 'honey', 'mint', 'sakura', 'white-chocolate', 'lavender', 'dark-chocolate'],
-  drink: ['tapioca', 'tea', 'brown-sugar', 'gold-leaf', 'truffle', 'chamomile', 'cola'],
+// ─── Per-theme ingredient groups & tab labels ────────────────────────────────
+
+interface KitchenTabConfig {
+  groups: Record<Tab, string[]>;
+  labels: Record<Tab, string>;
+}
+
+const DEFAULT_CONFIG: KitchenTabConfig = {
+  groups: {
+    food:  ['fish', 'rice', 'nori', 'egg', 'sauce', 'noodles', 'tofu', 'chicken', 'vegetables', 'cheese', 'shrimp', 'miso', 'patty', 'bun', 'fries', 'pizza-dough', 'pepperoni'],
+    sweet: ['matcha', 'mochi-flour', 'red-bean', 'cream', 'fruit', 'lychee', 'coconut', 'honey', 'mint', 'sakura', 'white-chocolate', 'lavender', 'dark-chocolate'],
+    drink: ['tapioca', 'tea', 'brown-sugar', 'gold-leaf', 'truffle', 'chamomile', 'cola'],
+  },
+  labels: { food: '🍱 Food', sweet: '🍡 Sweet', drink: '🧋 Drinks' },
 };
 
-const TAB_LABELS: Record<Tab, string> = {
-  food:  '🍱 Food',
-  sweet: '🍡 Sweet',
-  drink: '🧋 Drinks',
-};
-
-const SUNSET_INGREDIENT_GROUPS: Record<Tab, string[]> = {
-  food:  ['passionfruit', 'mango', 'pineapple', 'watermelon', 'lychee', 'dragon-fruit', 'lime', 'fruit', 'coconut'],
-  sweet: ['grenadine', 'rose-syrup', 'honey', 'agave', 'lavender', 'sakura', 'hibiscus', 'butterfly-pea'],
-  drink: ['soda-water', 'crushed-ice', 'boba', 'espresso', 'ginger', 'mint', 'gold-leaf'],
-};
-
-const SUNSET_TAB_LABELS: Record<Tab, string> = {
-  food:  '🍹 Fruits',
-  sweet: '🌺 Floral',
-  drink: '🫧 Bar',
+const KITCHEN_CONFIGS: Record<string, KitchenTabConfig> = {
+  'theme-sunset': {
+    groups: {
+      food:  ['passionfruit', 'mango', 'pineapple', 'watermelon', 'lychee', 'dragon-fruit', 'lime', 'fruit', 'coconut'],
+      sweet: ['grenadine', 'rose-syrup', 'honey', 'agave', 'lavender', 'sakura', 'hibiscus', 'butterfly-pea'],
+      drink: ['soda-water', 'crushed-ice', 'boba', 'espresso', 'ginger', 'mint', 'gold-leaf'],
+    },
+    labels: { food: '🍹 Fruits', sweet: '🌺 Floral', drink: '🫧 Bar' },
+  },
+  'theme-cosmic': {
+    groups: {
+      food:  ['stardust', 'moon-cheese', 'rocket-pepper', 'starfruit', 'meteorite-crumble', 'rice', 'cream'],
+      sweet: ['nebula-cream', 'cosmic-berry', 'aurora-jelly', 'space-honey', 'galaxy-swirl', 'mochi-flour'],
+      drink: ['tea', 'soda-water', 'galaxy-swirl', 'stardust', 'aurora-jelly'],
+    },
+    labels: { food: '☄️ Astro', sweet: '🌌 Nebula', drink: '🚀 Cosmic' },
+  },
+  'theme-campfire': {
+    groups: {
+      food:  ['bacon', 'cornbread', 'cast-iron-butter', 'campfire-smoke', 'pine-nuts', 'egg', 'vegetables', 'maple-syrup'],
+      sweet: ['marshmallow', 'graham-cracker', 'wild-berry', 'firewood-honey', 'dark-chocolate', 'cream', 'honey'],
+      drink: ['tea', 'campfire-smoke', 'firewood-honey', 'maple-syrup', 'cream'],
+    },
+    labels: { food: '🏕️ Hearty', sweet: '🔥 Toasty', drink: '☕ Warm' },
+  },
+  'theme-zen': {
+    groups: {
+      food:  ['rice', 'noodles', 'tofu', 'miso', 'bamboo-shoot', 'edamame', 'wasabi', 'seaweed', 'dashi', 'pickled-ginger', 'umeboshi'],
+      sweet: ['matcha', 'sesame', 'mochi-flour', 'cream', 'honey', 'yuzu', 'rice-vinegar'],
+      drink: ['tea', 'matcha', 'yuzu', 'honey', 'cream'],
+    },
+    labels: { food: '🎋 Garden', sweet: '🍡 Wagashi', drink: '🍵 Sado' },
+  },
+  'theme-candy': {
+    groups: {
+      food:  ['wafer', 'rice', 'marshmallow', 'caramel'],
+      sweet: ['cotton-candy', 'sprinkles', 'gummy-bears', 'frosting', 'bubblegum', 'jelly-bean', 'pop-rocks', 'rock-candy', 'cream', 'mochi-flour', 'dark-chocolate'],
+      drink: ['soda-water', 'tea', 'honey', 'pop-rocks', 'rock-candy', 'cream', 'bubblegum', 'cotton-candy'],
+    },
+    labels: { food: '🧇 Snacks', sweet: '🍭 Candy', drink: '🫧 Fizz' },
+  },
+  'theme-ocean': {
+    groups: {
+      food:  ['crab', 'shrimp', 'fish', 'kelp', 'rice', 'noodles', 'seaweed', 'driftwood-smoke', 'lemon', 'sea-salt', 'dashi'],
+      sweet: ['ocean-jelly', 'coral-sugar', 'sand-cookie', 'coconut', 'cream', 'mochi-flour', 'sea-salt', 'seafoam'],
+      drink: ['tea', 'pearl-tapioca', 'coral-sugar', 'lemon', 'coconut', 'seafoam', 'cream', 'sea-salt'],
+    },
+    labels: { food: '🦀 Catch', sweet: '🪸 Reef', drink: '🌊 Tide' },
+  },
 };
 
 const NEKO_ALLOWED: string[] = [
@@ -46,9 +90,10 @@ export default function Kitchen({ currentOrders, onOrderComplete, onWrongOrder, 
   const [selectedIngredients, setSelectedIngredients] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<Tab>('food');
 
-  const isSunset = activeTheme === 'theme-sunset';
-  const groups = isSunset ? SUNSET_INGREDIENT_GROUPS : INGREDIENT_GROUPS;
-  const labels = isSunset ? SUNSET_TAB_LABELS : TAB_LABELS;
+  const tc = getThemeConfig(activeTheme || 'default');
+  const kitchenCfg = KITCHEN_CONFIGS[activeTheme || 'default'] ?? DEFAULT_CONFIG;
+  const groups = kitchenCfg.groups;
+  const labels = kitchenCfg.labels;
 
   const hasVIPOrder = currentOrders.some(order => order.customer.isVIP);
   const maxIngredients = hasVIPOrder ? 6 : 4;
@@ -155,8 +200,8 @@ export default function Kitchen({ currentOrders, onOrderComplete, onWrongOrder, 
     <div className="bg-white rounded-xl shadow-md p-6 h-full flex flex-col">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <Utensils className={isSunset ? 'text-rose-500' : 'text-orange-600'} />
-          <h2 className="text-xl font-semibold">{isSunset ? 'Mocktail Bar' : 'Kitchen'}</h2>
+          <Utensils className={tc.kitchenIcon} />
+          <h2 className="text-xl font-semibold">{tc.kitchenTitle}</h2>
           {gameMode === 'lunch-rush' && (
             <span className="bg-red-100 text-red-700 text-xs font-bold px-2 py-0.5 rounded-full ml-1">
               ⚡ RUSH
@@ -186,8 +231,8 @@ export default function Kitchen({ currentOrders, onOrderComplete, onWrongOrder, 
                 onClick={() => setActiveTab(tab)}
                 className={`flex-1 py-1.5 rounded-lg text-sm font-medium transition relative ${
                   activeTab === tab
-                    ? isSunset ? 'bg-gradient-to-r from-orange-500 via-rose-500 to-purple-500 text-white shadow-sm' : 'bg-orange-600 text-white shadow-sm'
-                    : isSunset ? 'bg-orange-50 text-rose-600 hover:bg-rose-100' : 'bg-amber-50 text-amber-700 hover:bg-amber-100'
+                    ? tc.kitchenTabActive
+                    : tc.kitchenTabInactive
                 }`}
               >
                 {labels[tab]}
@@ -220,8 +265,8 @@ export default function Kitchen({ currentOrders, onOrderComplete, onWrongOrder, 
         </div>
 
         {/* Cooking station */}
-        <div className={`border-2 border-dashed rounded-xl p-4 flex flex-col ${isSunset ? 'border-rose-300' : 'border-orange-200'}`}>
-          <h3 className="font-medium mb-3 text-gray-700">{isSunset ? 'Mixing Station' : 'Cooking Station'}</h3>
+        <div className={`border-2 border-dashed rounded-xl p-4 flex flex-col ${tc.stationBorder}`}>
+          <h3 className="font-medium mb-3 text-gray-700">{tc.stationTitle}</h3>
 
           <div className="flex-1 flex flex-wrap gap-2 content-start mb-4 min-h-[120px]">
             {selectedIngredients.map((ingredientId, index) => {
@@ -241,7 +286,7 @@ export default function Kitchen({ currentOrders, onOrderComplete, onWrongOrder, 
             })}
             {selectedIngredients.length === 0 && (
               <p className="text-gray-400 text-sm self-center w-full text-center pt-4">
-                {isSunset ? '🍹 Pick ingredients to mix a mocktail!' : '✨ Pick ingredients to start cooking!'}
+                {tc.stationEmptyText}
               </p>
             )}
           </div>
@@ -252,14 +297,12 @@ export default function Kitchen({ currentOrders, onOrderComplete, onWrongOrder, 
             className={`w-full py-2.5 rounded-lg font-semibold transition ${
               selectedIngredients.length === 0
                 ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                : isSunset
-                  ? 'bg-gradient-to-r from-orange-500 via-rose-500 to-purple-500 text-white hover:from-orange-600 hover:via-rose-600 hover:to-purple-600 shadow-sm hover:shadow-md ring-2 ring-rose-300'
-                  : 'bg-orange-600 text-white hover:bg-orange-700 shadow-sm hover:shadow-md ring-2 ring-orange-300'
+                : tc.cookBtnActive
             }`}
           >
             {selectedIngredients.length === 0
-              ? (isSunset ? 'Add ingredients to mix' : 'Add ingredients to cook')
-              : (isSunset ? '🍹 Mix!' : '🍳 Cook!')}
+              ? tc.cookBtnEmptyLabel
+              : tc.cookBtnLabel}
           </button>
         </div>
       </div>

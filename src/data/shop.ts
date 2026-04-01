@@ -42,6 +42,56 @@ export const SHOP_ITEMS: ShopItem[] = [
     effect: 'Sunset gradient theme with mocktails, tiki vibes, and tropical ingredients'
   },
   {
+    id: 'theme-cosmic',
+    name: 'Cosmic Café',
+    description: 'Unlocks 12 stellar recipes and transforms your café into a deep-space observatory!',
+    cost: 4,
+    type: 'theme',
+    icon: 'Sparkles',
+    unlocked: false,
+    effect: 'Deep purple nebula theme with cosmic ingredients and starry vibes'
+  },
+  {
+    id: 'theme-campfire',
+    name: 'Campfire Kitchen',
+    description: 'Unlocks 12 rustic outdoor recipes and transforms your café into a cozy campsite!',
+    cost: 3,
+    type: 'theme',
+    icon: 'Flame',
+    unlocked: false,
+    effect: 'Warm charcoal and forest theme with s\'mores, maple, and campfire treats'
+  },
+  {
+    id: 'theme-zen',
+    name: 'Zen Garden',
+    description: 'Unlocks 12 tranquil recipes and transforms your café into a serene Japanese garden!',
+    cost: 3,
+    type: 'theme',
+    icon: 'Leaf',
+    unlocked: false,
+    effect: 'Sage green stone garden theme with bamboo, yuzu, and mindful dishes'
+  },
+  {
+    id: 'theme-candy',
+    name: 'Candy Shop',
+    description: 'Unlocks 12 sweet explosion recipes and transforms your café into a candy wonderland!',
+    cost: 3,
+    type: 'theme',
+    icon: 'Candy',
+    unlocked: false,
+    effect: 'Bubblegum pink candy theme with sprinkles, gummy bears, and sugar overload'
+  },
+  {
+    id: 'theme-ocean',
+    name: 'Ocean Breeze Café',
+    description: 'Unlocks 12 coastal recipes and transforms your café into a seaside retreat!',
+    cost: 3,
+    type: 'theme',
+    icon: 'Waves',
+    unlocked: false,
+    effect: 'Deep blue coastal theme with seafoam, pearls, and ocean-fresh flavors'
+  },
+  {
     id: 'boost-time',
     name: 'Time Extension',
     description: 'Start with 30 extra seconds',

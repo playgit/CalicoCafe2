@@ -3,8 +3,9 @@ import { ArrowLeft, Trash2, FlaskConical } from 'lucide-react';
 import { INGREDIENTS, RECIPES } from '../data/recipes';
 import { CustomRecipe } from '../types/game';
 import { nameDish } from '../utils/dishNamer';
+import { getThemeConfig, getRecipeThemeConfig } from '../data/themeConfig';
 
-type Tab = 'food' | 'sweet' | 'drink' | 'sunset';
+type Tab = 'food' | 'sweet' | 'drink' | 'sunset' | 'cosmic' | 'campfire' | 'zen' | 'candy' | 'ocean';
 
 const INGREDIENT_GROUPS: Record<Tab, string[]> = {
   food:  ['fish', 'rice', 'nori', 'egg', 'sauce', 'noodles', 'tofu', 'chicken', 'vegetables', 'cheese', 'shrimp', 'miso', 'patty', 'bun', 'fries', 'pizza-dough', 'pepperoni'],
@@ -15,16 +16,41 @@ const INGREDIENT_GROUPS: Record<Tab, string[]> = {
     'grenadine', 'rose-syrup', 'honey', 'agave', 'lavender', 'sakura', 'hibiscus', 'butterfly-pea',
     'soda-water', 'crushed-ice', 'boba', 'espresso', 'ginger', 'mint', 'gold-leaf',
   ],
+  cosmic: [
+    'stardust', 'moon-cheese', 'galaxy-swirl', 'meteorite-crumble', 'nebula-cream',
+    'cosmic-berry', 'starfruit', 'space-honey', 'rocket-pepper', 'aurora-jelly',
+  ],
+  campfire: [
+    'marshmallow', 'graham-cracker', 'maple-syrup', 'bacon', 'cornbread',
+    'campfire-smoke', 'pine-nuts', 'wild-berry', 'cast-iron-butter', 'firewood-honey',
+  ],
+  zen: [
+    'sesame', 'yuzu', 'bamboo-shoot', 'edamame', 'wasabi', 'pickled-ginger',
+    'umeboshi', 'dashi', 'seaweed', 'rice-vinegar',
+  ],
+  candy: [
+    'cotton-candy', 'sprinkles', 'gummy-bears', 'caramel', 'bubblegum',
+    'rock-candy', 'jelly-bean', 'frosting', 'wafer', 'pop-rocks',
+  ],
+  ocean: [
+    'sea-salt', 'crab', 'kelp', 'ocean-jelly', 'coral-sugar',
+    'sand-cookie', 'pearl-tapioca', 'driftwood-smoke', 'lemon', 'seafoam',
+  ],
 };
 
 const TAB_LABELS: Record<Tab, string> = {
-  food:   '🍱 Food',
-  sweet:  '🍡 Sweet',
-  drink:  '🧋 Drinks',
-  sunset: '🍹 Mocktails',
+  food:     '🍱 Food',
+  sweet:    '🍡 Sweet',
+  drink:    '🧋 Drinks',
+  sunset:   '🍹 Mocktails',
+  cosmic:   '🌌 Cosmic',
+  campfire: '🏕️ Campfire',
+  zen:      '🎋 Zen',
+  candy:    '🍭 Candy',
+  ocean:    '🌊 Ocean',
 };
 
-type SaveCategory = 'regular' | 'american' | 'vip' | 'sakura' | 'sunset';
+type SaveCategory = 'regular' | 'american' | 'vip' | 'sakura' | 'sunset' | 'cosmic' | 'campfire' | 'zen' | 'candy' | 'ocean';
 
 interface ThemeClasses {
   bg: string;
@@ -47,6 +73,16 @@ interface CreativeModeProps {
 
 const MAX_CUSTOM_RECIPES = 10;
 
+// Themes that gate ingredient tabs and save categories
+const THEME_TABS: { tab: Tab; themeId: string }[] = [
+  { tab: 'sunset',   themeId: 'theme-sunset' },
+  { tab: 'cosmic',   themeId: 'theme-cosmic' },
+  { tab: 'campfire', themeId: 'theme-campfire' },
+  { tab: 'zen',      themeId: 'theme-zen' },
+  { tab: 'candy',    themeId: 'theme-candy' },
+  { tab: 'ocean',    themeId: 'theme-ocean' },
+];
+
 export default function CreativeMode({
   onBack, coins, onSpendCoins, customRecipes, onSaveRecipe, unlockedItems, themeClasses, activeTheme,
 }: CreativeModeProps) {
@@ -61,28 +97,10 @@ export default function CreativeMode({
   const [savedFlash, setSavedFlash] = useState(false);
   const [usedNames, setUsedNames] = useState<Set<string>>(new Set());
 
-  const accentBtn = activeTheme === 'theme-night'
-    ? 'bg-indigo-600 hover:bg-indigo-700'
-    : activeTheme === 'theme-sakura'
-      ? 'bg-rose-400 hover:bg-rose-500'
-      : activeTheme === 'theme-american'
-        ? 'bg-blue-600 hover:bg-blue-700'
-        : activeTheme === 'theme-sunset'
-          ? 'bg-gradient-to-r from-orange-500 via-rose-500 to-purple-500'
-          : 'bg-orange-600 hover:bg-orange-700';
-
-  const accentText = activeTheme === 'theme-night'
-    ? 'text-indigo-400'
-    : activeTheme === 'theme-sakura'
-      ? 'text-rose-500'
-      : activeTheme === 'theme-american'
-        ? 'text-blue-600'
-        : activeTheme === 'theme-sunset'
-          ? 'text-rose-500'
-          : 'text-orange-600';
+  const tc = getThemeConfig(activeTheme);
 
   const liveName = selectedIngredients.length > 0 ? nameDish(selectedIngredients, usedNames) : null;
-  const visibleIngredients = INGREDIENTS.filter(i => INGREDIENT_GROUPS[activeTab].includes(i.id));
+  const visibleIngredients = INGREDIENTS.filter(i => INGREDIENT_GROUPS[activeTab]?.includes(i.id));
 
   const handleIngredientClick = (id: string) => {
     if (selectedIngredients.length < 6) {
@@ -146,17 +164,25 @@ export default function CreativeMode({
     setTimeout(() => setSavedFlash(false), 2500);
   };
 
-  const sakuraUnlocked   = unlockedItems.includes('theme-sakura');
-  const americanUnlocked = unlockedItems.includes('theme-american');
-  const sunsetUnlocked   = unlockedItems.includes('theme-sunset');
   const atLimit = customRecipes.length >= MAX_CUSTOM_RECIPES;
 
+  // Build category list dynamically
   const CATEGORIES: { id: SaveCategory; label: string; locked?: boolean }[] = [
     { id: 'regular',  label: '🍳 Regular' },
-    { id: 'american', label: '🍔 American', locked: !americanUnlocked },
+    { id: 'american', label: '🍔 American', locked: !unlockedItems.includes('theme-american') },
     { id: 'vip',      label: '⭐ VIP' },
-    { id: 'sakura',   label: '🌸 Sakura', locked: !sakuraUnlocked },
-    { id: 'sunset',   label: '🍹 Mocktail', locked: !sunsetUnlocked },
+    { id: 'sakura',   label: '🌸 Sakura', locked: !unlockedItems.includes('theme-sakura') },
+    ...THEME_TABS.map(({ tab, themeId }) => ({
+      id: tab as SaveCategory,
+      label: TAB_LABELS[tab],
+      locked: !unlockedItems.includes(themeId),
+    })),
+  ];
+
+  // Which tabs are visible (base + unlocked themes)
+  const visibleTabs: Tab[] = [
+    'food', 'sweet', 'drink',
+    ...THEME_TABS.filter(t => unlockedItems.includes(t.themeId)).map(t => t.tab),
   ];
 
   return (
@@ -190,26 +216,24 @@ export default function CreativeMode({
           </h2>
 
           {/* Tabs */}
-          <div className="flex gap-1 mb-3">
-            {(Object.keys(INGREDIENT_GROUPS) as Tab[])
-              .filter(tab => tab !== 'sunset' || sunsetUnlocked)
-              .map(tab => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`flex-1 py-1.5 rounded-lg text-sm font-medium transition ${
-                  activeTab === tab
-                    ? tab === 'sunset'
-                      ? 'bg-gradient-to-r from-orange-500 via-rose-500 to-purple-500 text-white shadow-sm'
-                      : 'bg-orange-600 text-white shadow-sm'
-                    : tab === 'sunset'
-                      ? 'bg-orange-50 text-rose-600 hover:bg-rose-100'
-                      : 'bg-amber-50 text-amber-700 hover:bg-amber-100'
-                }`}
-              >
-                {TAB_LABELS[tab]}
-              </button>
-            ))}
+          <div className="flex flex-wrap gap-1 mb-3">
+            {visibleTabs.map(tab => {
+              const isThemeTab = THEME_TABS.some(t => t.tab === tab);
+              const tabTc = isThemeTab ? getThemeConfig(`theme-${tab}`) : null;
+              return (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`flex-1 py-1.5 rounded-lg text-sm font-medium transition min-w-0 ${
+                    activeTab === tab
+                      ? (tabTc ? tabTc.kitchenTabActive : tc.kitchenTabActive)
+                      : (tabTc ? tabTc.kitchenTabInactive : tc.kitchenTabInactive)
+                  }`}
+                >
+                  {TAB_LABELS[tab]}
+                </button>
+              );
+            })}
           </div>
 
           <p className="text-xs text-gray-400 mb-2">Selected: {selectedIngredients.length}/6</p>
@@ -351,7 +375,10 @@ export default function CreativeMode({
               <h3 className="font-semibold text-gray-700 mb-3">✏️ Your Saved Recipes ({customRecipes.length}/{MAX_CUSTOM_RECIPES})</h3>
               <div className="space-y-2">
                 {customRecipes.slice().reverse().map(cr => {
-                  const catLabel = cr.category === 'regular' ? '🍳 Regular' : cr.category === 'american' ? '🍔 American' : cr.category === 'vip' ? '⭐ VIP' : cr.category === 'sunset' ? '🍹 Mocktail' : '🌸 Sakura';
+                  const recipeTc = getRecipeThemeConfig(cr.category);
+                  const catLabel = cr.category === 'regular' ? '🍳 Regular'
+                    : cr.category === 'vip' ? '⭐ VIP'
+                    : recipeTc?.recipeBadge || `📦 ${cr.category}`;
                   return (
                     <div key={cr.id} className="flex items-center gap-3 p-2.5 rounded-lg bg-gray-50 border border-gray-100">
                       <div className="flex-1 min-w-0">
@@ -397,7 +424,7 @@ export default function CreativeMode({
 
             <div className="mb-5">
               <label className="block text-sm font-medium text-gray-600 mb-2">Category</label>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto">
                 {CATEGORIES.map(cat => (
                   <button
                     key={cat.id}
